@@ -49,25 +49,39 @@ function getLogPath(cset, slave, callback)
   console.info("Looking for " + cset + " on " + slave);
   // Get the JSON because Pulse knows nothing about where the logs are :(
   var req = http.get({host: "tinderbox.mozilla.org",
-                      path: "/Firefox/json.js"}, function(res) {
+                      path: "/Firefox/json2.js"}, function(res) {
     var str = "";
     res.setEncoding("utf8");
     res.on("data", function(chunk) {
       str += chunk;
     });
     res.on("end", function() {
-      var stuff = eval(str);
+      var builds = JSON.parse(str).builds;
       /* Format looks like:
-      scrape: 
-       { '1306485307.1306486083.3549.gz': 
-          [ ' s: talos-r3-xp-008',
-            '<a href=http://hg.mozilla.org/mozilla-central/rev/1fdd03bc2f19 title="Built from revision 1fdd03bc2f19">rev:1fdd03bc2f19</a>',
-            ' crashtest<br/>1838/0/55' ],
+        { warnings_enabled: 0,
+          buildname: 'Rev3 WINNT 6.1 mozilla-central debug test crashtest',
+          errorparser: 'unittest',
+          ignored: 0,
+          scrape_enabled: 1,
+          scrape: 
+            [" s: talos-r3-fed64-039",
+             "<a href=http://hg.mozilla.org/mozilla-central/rev/c6d349c58bd7 title=\"Built from revision c6d349c58bd7\">rev:c6d349c58bd7</a>",
+             " crashtest<br/>1840/0/10"],
+             ...
+            ],
+          buildstatus: 'success',
+          endtime: '1306535472',
+          buildtime: '1306534519',
+          logfile: '1306534519.1306535368.11955.gz' },
       */
-      for (var change in stuff.scrape) {
-        if (stuff.scrape[change][0].indexOf(slave) != -1 &&
-            stuff.scrape[change][1].indexOf(cset) != -1) {
-          console.info(cset + ": " + change);
+      for (var i = 0; i < builds.length; i++) {
+        if (!builds[i].scrape) {
+          continue;
+        }
+
+        var scrape = builds[i].scrape;
+        if (scrape[0].indexOf(slave) != -1 && scrape[1].indexOf(cset) != -1) {
+          console.info(cset + ": " + builds[i].logfile);
           return;
         }
       }

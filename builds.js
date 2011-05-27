@@ -3,6 +3,10 @@ var http = require("http");
 
 var kTboxDelay = 60 * 1000; // 60 seconds
 
+var kBuildbotSuccess = 0;
+var kBuildbotWarning = 1;
+var kBuildbotFailure = 2;
+
 function createBuildData(m)
 {
   var builddata = {
@@ -11,6 +15,7 @@ function createBuildData(m)
     platform: undefined,
     slave: undefined,
     rev: undefined,
+    result: m.payload.results[0], // a kBuildbot* constant
   };
 
   // Scan through the properties object to find the data we care about.  I
@@ -87,17 +92,22 @@ function messageConsumer(message)
 
   var data = createBuildData(message);
 
-  var handleLog = function() {
-    console.info("got a callback (:");
-  };
+  // Anything that isn't one of our constants we don't need to care about.
+  if (data.result == kBuildbotWarning || data.result == kBuildbotFailure) {
+    var handleLog = function() {
+      console.info("got a callback (:");
+    };
 
-  // Give tinderbox time to process the log file.  It may not happen by, then
-  // though...
-  setTimeout(function() { getLogPath(data.rev, data.slave, handleLog); },
-             kTboxDelay);
+    // Give tinderbox time to process the log file.  It may not happen by, then
+    // though...
+    setTimeout(function() { getLogPath(data.rev, data.slave, handleLog); },
+               kTboxDelay);
+  }
+  var d = key.split(".");
+  console.log("all good on this build (" + d[d.length - 2] + ")!");
 }
 
 var topics = [
-  "build.#.step.#.maybe_rebooting.finished",
+  "build.#.step.#.#.finished",
 ];
 var conn = new pulse.BuildConsumer("node-pulse-test", messageConsumer, topics);

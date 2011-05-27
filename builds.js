@@ -1,6 +1,15 @@
 var pulse = require("pulse");
 var http = require("http");
 
+var gListeners = [];
+exports.on = function(topic, callback) {
+  if (topic != "problem") {
+    throw "Only support problem at this time";
+  }
+
+  gListeners.push(callback);
+};
+
 var kTboxDelay = 60 * 1000; // 60 seconds
 
 var kBuildbotSuccess = 0;
@@ -81,7 +90,12 @@ function getLogPath(cset, slave, callback)
 
         var scrape = builds[i].scrape;
         if (scrape[0].indexOf(slave) != -1 && scrape[1].indexOf(cset) != -1) {
-          console.info(cset + ": " + builds[i].logfile);
+          try {
+            callback(builds[i].logfile);
+          }
+          catch (e) {
+            console.error(e.stack);
+          }
           return;
         }
       }
@@ -108,8 +122,16 @@ function messageConsumer(message)
 
   // Anything that isn't one of our constants we don't need to care about.
   if (data.result == kBuildbotWarning || data.result == kBuildbotFailure) {
-    var handleLog = function() {
-      console.info("got a callback (:");
+    var handleLog = function(log) {
+      data.logfile = log;
+      gListeners.forEach(function(callback) {
+        try {
+          callback(data);
+        }
+        catch (e) {
+          console.error(e.stack);
+        }
+      });
     };
 
     // Give tinderbox time to process the log file.  It may not happen by, then

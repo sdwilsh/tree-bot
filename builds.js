@@ -121,7 +121,26 @@ function messageConsumer(message)
   console.log("all good on this build (" + d[d.length - 2] + ")!");
 }
 
-var topics = [
-  "build.#.step.#.#.finished",
+var types = [
+  // Whitelist only tests that are run on mozilla-central.
+  "mochitest-ipcplugins",
+  "mochitest-a11y",
+  "mochitest-plain-1",
+  "mochitest-plain-2",
+  "mochitest-plain-3",
+  "mochitest-plain-4",
+  "mochitest-plain-5",
+  "mochitest-chrome",
+  "mochitest-browser-chrome",
+  "reftest",
+  "reftest-ipc",
+  "jsreftest",
+  "jetpack",
+  "xpcshell",
 ];
+
+var topics = [];
+types.forEach(function(type) {
+  topics.push("build.#.step.#." + type + ".finished");
+});
 var conn = new pulse.BuildConsumer("node-pulse-test", messageConsumer, topics);

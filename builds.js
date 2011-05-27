@@ -84,9 +84,7 @@ function messageConsumer(message)
   if (key.substr(0, key.indexOf("_")) != "build.mozilla-central") {
     return;
   }
-  if (key.indexOf(".finished") == -1) {
-    return;
-  }
+
   var data = createBuildData(message);
 
   var handleLog = function() {

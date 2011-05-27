@@ -7,6 +7,10 @@ function welshify(text, callback) {
   });
 }
 
+function say(text) {
+  client.say(kChannels[0], text);
+}
+
 var kChannels = [
   "#afrosdwilsh",
 ];

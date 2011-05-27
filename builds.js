@@ -9,8 +9,6 @@ function createBuildData(m)
     key: m._meta.routing_key,
     buildid: undefined,
     platform: undefined,
-    builddate: undefined,
-    buildurl: undefined,
     slave: undefined,
     rev: undefined,
   };
@@ -24,10 +22,6 @@ function createBuildData(m)
         break;
       case "platform":
          builddata.platform = property[1];
-        break;
-      case "packageUrl":
-      case "build_url":
-        builddata.buildurl = property[1];
         break;
       case "slavename":
         builddata.slave = property[1];

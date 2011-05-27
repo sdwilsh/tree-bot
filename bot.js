@@ -24,5 +24,10 @@ client.addListener("error", function(m) {
   console.error(m);
 });
 client.addListener("message", function(from, to, message) {
-  console.log(from + " -> " + to + ":" + message)
+  var action = /ACTION (.+)/.exec(message);
+  if (action) {
+    console.log(" * " + from + " " + action[1]);
+  } else {
+    console.log("<" + from + "> " + message);
+  }
 });

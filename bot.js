@@ -4,6 +4,8 @@ var format = require("./format");
 var reporter = require("./reporter");
 var builds = require("./builds");
 
+var kWelshChance = 0.01;
+
 function welshify(text, callback)
 {
   translate.text({input:'English',output:'Welsh'}, text, function (err, result) {
@@ -18,10 +20,20 @@ function say()
 }
 
 builds.on("problem", function (event) {
+  var cb = say;
+  if (Math.random() < kWelshChance) {
+    cb = function () {
+      var args = arguments;
+      welshify(args[0], function (fmt) {
+        args[0] = fmt;
+        say.apply(null, args);
+      });
+    };
+  }
   if (event.result === builds.kBuildbotSuccess) {
-    reporter.success(say, event);
+    reporter.success(cb, event);
   } else {
-    reporter.failure(say, event);
+    reporter.failure(cb, event);
   }
 });
 

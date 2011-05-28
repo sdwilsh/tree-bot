@@ -6,6 +6,11 @@ exports.success = function success(cb, event)
   cb("Another successful build. Good job, team!");
 }
 
+exports.warning = function warning(cb, event)
+{
+  cb("Rev {0} on {1} doesn't look so hot...", event.rev, event.platform);
+}
+
 exports.failure = function failure(cb, event)
 {
   var logurl = url.format({

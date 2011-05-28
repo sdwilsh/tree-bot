@@ -19,23 +19,26 @@ function say()
   client.say(kChannels[0], text);
 }
 
-builds.on("problem", function (event) {
-  var cb = say;
-  if (Math.random() < kWelshChance) {
-    cb = function () {
-      var args = arguments;
-      welshify(args[0], function (fmt) {
-        args[0] = fmt;
-        say.apply(null, args);
-      });
-    };
+function makeReporter(reporter)
+{
+  return function (event) {
+    var cb = say;
+    if (Math.random() < kWelshChance) {
+      cb = function () {
+        var args = arguments;
+        welshify(args[0], function (fmt) {
+          args[0] = fmt;
+          say.apply(null, args);
+        });
+      };
+    }
+    reporter(cb, event);
   }
-  if (event.result === builds.kBuildbotSuccess) {
-    reporter.success(cb, event);
-  } else {
-    reporter.failure(cb, event);
-  }
-});
+}
+
+builds.on("success", makeReporter(reporter.success));
+builds.on("warning", makeReporter(reporter.warning));
+builds.on("failure", makeReporter(reporter.failure));
 
 var kChannels = [
   "#afrosdwilsh",

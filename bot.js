@@ -3,8 +3,7 @@ var format = require("./format");
 var reporter = require("./reporter");
 var builds = require("./builds");
 var welshify = require("./welshify");
-
-var kWelshChance = 0.01;
+var mehdify = require("./mehdify");
 
 function interceptFormat(interceptor, originalfn)
 {
@@ -23,13 +22,33 @@ function say()
   client.say(kChannels[0], text);
 }
 
+var interceptors = [
+  { 'chance' : 0.01, 'fn' : welshify },
+  { 'chance' : 0.10, 'fn' : mehdify },
+];
+
+function chooseCallbackFunction()
+{
+  var chance = Math.random();
+  var fn = undefined;
+  for (var i = 0; i < interceptors.length; i++) {
+    if (interceptors[i].chance < chance) {
+      fn = interceptor[i].fn;
+      break;
+    }
+    chance -= interceptors[i].chance;
+  }
+  if (fn === undefined) {
+    return say;
+  } else {
+    return interceptFormat(fn, say);
+  }
+}
+
 function makeReporter(reporter)
 {
   return function (event) {
-    var cb = say;
-    if (Math.random() < kWelshChance) {
-      cb = interceptFormat(welshify, cb);
-    }
+    var cb = chooseCallbackFunction();
     reporter(cb, event);
   }
 }

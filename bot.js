@@ -1,8 +1,7 @@
 var irc = require("irc");
 var translate = require("translate");
-var url = require("url");
-var shorturl = require("shorturl");
 var format = require("./format");
+var reporter = require("./reporter");
 var builds = require("./builds");
 
 function welshify(text, callback)
@@ -14,22 +13,16 @@ function welshify(text, callback)
 
 function say()
 {
-  var args = arguments;
-  var text = format.apply(null, args);
+  var text = format.apply(null, arguments);
   client.say(kChannels[0], text);
 }
 
 builds.on("problem", function (event) {
-  var logurl = url.format({
-    protocol: 'http',
-    host: 'tbpl.mozilla.org',
-    pathname: '/php/getTinderboxSummary.php',
-    query: {tree:'Firefox',id:event.logfile}
-  });
-  shorturl(logurl, 'goo.gl', function (shorturl) {
-    say("Looks like rev {0} on {1} had an oopsie", event.rev,  event.platform);
-    say("See {0} for more details", shorturl);
-  });
+  if (event.result === builds.kBuildbotSuccess) {
+    reporter.success(say, event);
+  } else {
+    reporter.failure(say, event);
+  }
 });
 
 var kChannels = [

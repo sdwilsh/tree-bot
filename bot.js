@@ -13,6 +13,17 @@ function welshify(text, callback)
   });
 }
 
+function interceptFormat(interceptor, originalfn)
+{
+  return function () {
+    var args = arguments;
+    interceptor(args[0], function (fmt) {
+      args[0] = fmt;
+      originalfn.apply(null, args);
+    });
+  };
+}
+
 function say()
 {
   var text = format.apply(null, arguments);
@@ -24,13 +35,7 @@ function makeReporter(reporter)
   return function (event) {
     var cb = say;
     if (Math.random() < kWelshChance) {
-      cb = function () {
-        var args = arguments;
-        welshify(args[0], function (fmt) {
-          args[0] = fmt;
-          say.apply(null, args);
-        });
-      };
+      cb = interceptFormat(welshify, cb);
     }
     reporter(cb, event);
   }

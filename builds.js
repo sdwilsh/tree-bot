@@ -13,14 +13,17 @@ exports.on = function(topic, callback) {
   gListeners.push(callback);
 };
 
-var kTboxDelay = 60 * 1000; // 60 seconds
-
-var kBuildbotSuccess = 0;
-var kBuildbotWarning = 1;
-var kBuildbotFailure = 2;
+exports.__defineGetter__("kBuildbotSuccess", function() { return 0; });
+exports.__defineGetter__("kBuildbotWarning", function() { return 1; });
+exports.__defineGetter__("kBuildbotFailure", function() { return 2; });
 
 ////////////////////////////////////////////////////////////////////////////////
 //// Local Methods
+
+var kTboxDelay = 60 * 1000; // 60 seconds
+var kBuildbotSuccess = exports.kBuildbotSuccess;
+var kBuildbotWarning = exports.kBuildbotWarning;
+var kBuildbotFailure = exports.kBuildbotFailure;
 
 function createBuildData(m)
 {

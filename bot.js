@@ -2,6 +2,7 @@ var irc = require("irc");
 var translate = require("translate");
 var url = require("url");
 var shorturl = require("shorturl");
+var format = require("./format");
 var builds = require("./builds");
 
 function welshify(text, callback)
@@ -11,8 +12,10 @@ function welshify(text, callback)
   });
 }
 
-function say(text)
+function say()
 {
+  var args = arguments;
+  var text = format.apply(null, args);
   client.say(kChannels[0], text);
 }
 
@@ -24,8 +27,8 @@ builds.on("problem", function (event) {
     query: {tree:'Firefox',id:event.logfile}
   });
   shorturl(logurl, 'goo.gl', function (shorturl) {
-    say("Looks like rev " + event.rev + " on " + event.platform + " had an oopsie");
-    say("See " + shorturl + " for more details");
+    say("Looks like rev {0} on {1} had an oopsie", event.rev,  event.platform);
+    say("See {0} for more details", shorturl);
   });
 });
 

@@ -1,3 +1,4 @@
+var events = require("events");
 var pulse = require("pulse");
 var http = require("http");
 
@@ -12,32 +13,16 @@ var kBuildbotFailure = 2;
 ////////////////////////////////////////////////////////////////////////////////
 //// Local Methods
 
-var gSuccessListeners = [];
-var gWarningListeners = [];
-var gFailureListeners = [];
-
-function notify(type, data)
+function getEventFromType(type)
 {
-  var callbacks;
   switch(type) {
     case kBuildbotSuccess:
-      callbacks = gSuccessListeners;
-      break;
+      return "success";
     case kBuildbotWarning:
-      callbacks = gSuccessListeners;
-      break;
+      return "warning";
     case kBuildbotFailure:
-      callbacks = gSuccessListeners;
-      break;
+      return "failure";
   }
-  callbacks.forEach(function(callback) {
-    try {
-      callback(data);
-    }
-    catch(e) {
-      console.error(e.stack);
-    }
-  });
 }
 
 function createBuildData(m)
@@ -145,12 +130,12 @@ function messageConsumer(message)
   var data = createBuildData(message);
 
   // On warning (orange) or error (red), we need to get the log filename first.
-  if ((data.result == kBuildbotWarning && gWarningListeners.length) ||
-      (data.result == kBuildbotFailure && gFailureListeners.length)) {
+  if ((data.result == kBuildbotWarning && this.listeners("warning").length) ||
+      (data.result == kBuildbotFailure && this.listeners("failure").length)) {
     var handleLog = function(log) {
       data.logfile = log;
-      notify(data.result, data);
-    };
+      this.emit(getEventFromType(data.result), data);
+    }.bind(this);
 
     // Give tinderbox time to process the log file.  It may not happen by, then
     // though...
@@ -159,7 +144,7 @@ function messageConsumer(message)
   }
   // On success we can notify immediately.
   else if (data.result == kBuildbotSuccess) {
-    notify(data.result, data);
+    this.emit(getEventFromType(data.result), data);
   }
 }
 
@@ -168,57 +153,37 @@ function messageConsumer(message)
 
 function Watcher()
 {
+  // Lazily initialize ourselves when we actually get a listener.
+  this.once("newListener", function() {
+    var types = [
+      // Whitelist only tests that are run on mozilla-central.
+      "mochitest-ipcplugins",
+      "mochitest-a11y",
+      "mochitest-plain-1",
+      "mochitest-plain-2",
+      "mochitest-plain-3",
+      "mochitest-plain-4",
+      "mochitest-plain-5",
+      "mochitest-chrome",
+      "mochitest-browser-chrome",
+      "reftest",
+      "reftest-ipc",
+      "jsreftest",
+      "jetpack",
+      "xpcshell",
+    ];
+
+    var topics = [];
+    types.forEach(function(type) {
+      topics.push("build.#.step.#." + type + ".finished");
+    });
+    this._connection = new pulse.BuildConsumer("build-watcher",
+                                               messageConsumer.bind(this),
+                                               topics);
+  }.bind(this));
 }
 
-Watcher.prototype.ensureIntialized = function()
-{
-  if (this._connection) {
-    // We're already initialized.  Nothing to do here...
-    return;
-  }
-
-  var types = [
-    // Whitelist only tests that are run on mozilla-central.
-    "mochitest-ipcplugins",
-    "mochitest-a11y",
-    "mochitest-plain-1",
-    "mochitest-plain-2",
-    "mochitest-plain-3",
-    "mochitest-plain-4",
-    "mochitest-plain-5",
-    "mochitest-chrome",
-    "mochitest-browser-chrome",
-    "reftest",
-    "reftest-ipc",
-    "jsreftest",
-    "jetpack",
-    "xpcshell",
-  ];
-
-  var topics = [];
-  types.forEach(function(type) {
-    topics.push("build.#.step.#." + type + ".finished");
-  });
-  this._connection = new pulse.BuildConsumer("node-pulse-test", messageConsumer,
-                                             topics);
-}
-
-Watcher.prototype.on = function(topic, callback) {
-  switch(topic) {
-    case "success":
-      gSuccessListeners.push(callback);
-      break;
-    case "warning":
-      gWarningListeners.push(callback);
-      break;
-    case "failure":
-      gFailureListeners.push(callback);
-      break;
-    default:
-      throw "invalid listener type";
-  }
-  this.ensureInitialized();
-};
+Watcher.prototype = Object.create(events.EventEmitter.prototype);
 
 Watcher.__defineGetter__("kBuildbotSuccess", function() { return kBuildbotSuccess; });
 Watcher.__defineGetter__("kBuildbotWarning", function() { return kBuildbotWarning; });

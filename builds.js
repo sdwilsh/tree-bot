@@ -2,36 +2,12 @@ var pulse = require("pulse");
 var http = require("http");
 
 ////////////////////////////////////////////////////////////////////////////////
-//// Exports
-
-exports.on = function(topic, callback) {
-  switch(topic) {
-    case "success":
-      gSuccessListeners.push(callback);
-      break;
-    case "warning":
-      gWarningListeners.push(callback);
-      break;
-    case "failure":
-      gFailureListeners.push(callback);
-      break;
-    default:
-      throw "invalid listener type";
-  }
-  ensureInitialized();
-};
-
-exports.__defineGetter__("kBuildbotSuccess", function() { return 0; });
-exports.__defineGetter__("kBuildbotWarning", function() { return 1; });
-exports.__defineGetter__("kBuildbotFailure", function() { return 2; });
-
-////////////////////////////////////////////////////////////////////////////////
 //// Constants
 
 var kTboxDelay = 60 * 1000; // 60 seconds
-var kBuildbotSuccess = exports.kBuildbotSuccess;
-var kBuildbotWarning = exports.kBuildbotWarning;
-var kBuildbotFailure = exports.kBuildbotFailure;
+var kBuildbotSuccess = 0;
+var kBuildbotWarning = 1;
+var kBuildbotFailure = 2;
 
 ////////////////////////////////////////////////////////////////////////////////
 //// Local Methods
@@ -220,3 +196,27 @@ function ensureInitialized()
   gConnection = new pulse.BuildConsumer("node-pulse-test", messageConsumer,
                                         topics);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//// Exports
+
+exports.on = function(topic, callback) {
+  switch(topic) {
+    case "success":
+      gSuccessListeners.push(callback);
+      break;
+    case "warning":
+      gWarningListeners.push(callback);
+      break;
+    case "failure":
+      gFailureListeners.push(callback);
+      break;
+    default:
+      throw "invalid listener type";
+  }
+  ensureInitialized();
+};
+
+exports.__defineGetter__("kBuildbotSuccess", function() { return kBuildbotSuccess; });
+exports.__defineGetter__("kBuildbotWarning", function() { return kBuildbotWarning; });
+exports.__defineGetter__("kBuildbotFailure", function() { return kBuildbotFailure; });

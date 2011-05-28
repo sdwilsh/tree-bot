@@ -163,10 +163,16 @@ function messageConsumer(message)
   }
 }
 
-var gConnection;
-function ensureInitialized()
+////////////////////////////////////////////////////////////////////////////////
+//// Exports
+
+function Watcher()
 {
-  if (gConnection) {
+}
+
+Watcher.prototype.ensureIntialized = function()
+{
+  if (this._connection) {
     // We're already initialized.  Nothing to do here...
     return;
   }
@@ -193,14 +199,11 @@ function ensureInitialized()
   types.forEach(function(type) {
     topics.push("build.#.step.#." + type + ".finished");
   });
-  gConnection = new pulse.BuildConsumer("node-pulse-test", messageConsumer,
-                                        topics);
+  this._connection = new pulse.BuildConsumer("node-pulse-test", messageConsumer,
+                                             topics);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//// Exports
-
-exports.on = function(topic, callback) {
+Watcher.prototype.on = function(topic, callback) {
   switch(topic) {
     case "success":
       gSuccessListeners.push(callback);
@@ -214,9 +217,11 @@ exports.on = function(topic, callback) {
     default:
       throw "invalid listener type";
   }
-  ensureInitialized();
+  this.ensureInitialized();
 };
 
-exports.__defineGetter__("kBuildbotSuccess", function() { return kBuildbotSuccess; });
-exports.__defineGetter__("kBuildbotWarning", function() { return kBuildbotWarning; });
-exports.__defineGetter__("kBuildbotFailure", function() { return kBuildbotFailure; });
+Watcher.__defineGetter__("kBuildbotSuccess", function() { return kBuildbotSuccess; });
+Watcher.__defineGetter__("kBuildbotWarning", function() { return kBuildbotWarning; });
+Watcher.__defineGetter__("kBuildbotFailure", function() { return kBuildbotFailure; });
+
+exports.Watcher = Watcher;

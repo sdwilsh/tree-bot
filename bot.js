@@ -53,9 +53,10 @@ function makeReporter(reporter)
   }
 }
 
-builds.on("success", makeReporter(reporter.success));
-builds.on("warning", makeReporter(reporter.warning));
-builds.on("failure", makeReporter(reporter.failure));
+var watcher = new builds.Watcher();
+watcher.on("success", makeReporter(reporter.success));
+watcher.on("warning", makeReporter(reporter.warning));
+watcher.on("failure", makeReporter(reporter.failure));
 
 var kChannels = [
   "#afrosdwilsh",

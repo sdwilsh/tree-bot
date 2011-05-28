@@ -121,9 +121,8 @@ function getLogPath(cset, slave, callback)
 function messageConsumer(message)
 {
   var key = message._meta.routing_key;
-  // Filter on mozilla-central.  Do not need to do this after bug 659776 is
-  // fixed.
-  if (key.substr(0, key.indexOf("_")) != "build.mozilla-central") {
+  // Filter on our tree.  Do not need to do this after bug 659776 is fixed.
+  if (key.indexOf(this.tree) == -1) {
     return;
   }
 
@@ -151,8 +150,13 @@ function messageConsumer(message)
 ////////////////////////////////////////////////////////////////////////////////
 //// Exports
 
-function Watcher()
+function Watcher(tree)
 {
+  if (!tree) {
+    tree = "mozilla-central";
+  }
+  this.tree = tree;
+
   // Lazily initialize ourselves when we actually get a listener.
   this.once("newListener", function() {
     var types = [

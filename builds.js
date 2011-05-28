@@ -1,6 +1,9 @@
 var pulse = require("pulse");
 var http = require("http");
 
+////////////////////////////////////////////////////////////////////////////////
+//// Exports
+
 var gListeners = [];
 exports.on = function(topic, callback) {
   if (topic != "problem") {
@@ -15,6 +18,9 @@ var kTboxDelay = 60 * 1000; // 60 seconds
 var kBuildbotSuccess = 0;
 var kBuildbotWarning = 1;
 var kBuildbotFailure = 2;
+
+////////////////////////////////////////////////////////////////////////////////
+//// Local Methods
 
 function createBuildData(m)
 {

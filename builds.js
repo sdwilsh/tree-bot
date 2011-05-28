@@ -168,7 +168,8 @@ function messageConsumer(message)
   var data = createBuildData(message);
 
   // On warning (orange) or error (red), we need to get the log filename first.
-  if (data.result == kBuildbotWarning || data.result == kBuildbotFailure) {
+  if ((data.result == kBuildbotWarning && gWarningListeners.length) ||
+      (data.result == kBuildbotFailure && gFailureListeners.length)) {
     var handleLog = function(log) {
       data.logfile = log;
       notify(data.result, data);

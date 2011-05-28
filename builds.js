@@ -4,13 +4,20 @@ var http = require("http");
 ////////////////////////////////////////////////////////////////////////////////
 //// Exports
 
-var gListeners = [];
 exports.on = function(topic, callback) {
-  if (topic != "problem") {
-    throw "Only support problem at this time";
+  switch(topic) {
+    case "success":
+      gSuccessListeners.push(callback);
+      break;
+    case "warning":
+      gWarningListeners.push(callback);
+      break;
+    case "failure":
+      gFailureListeners.push(callback);
+      break;
+    default:
+      throw "invalid listener type";
   }
-
-  gListeners.push(callback);
 };
 
 exports.__defineGetter__("kBuildbotSuccess", function() { return 0; });
@@ -18,12 +25,43 @@ exports.__defineGetter__("kBuildbotWarning", function() { return 1; });
 exports.__defineGetter__("kBuildbotFailure", function() { return 2; });
 
 ////////////////////////////////////////////////////////////////////////////////
-//// Local Methods
+//// Constants
 
 var kTboxDelay = 60 * 1000; // 60 seconds
 var kBuildbotSuccess = exports.kBuildbotSuccess;
 var kBuildbotWarning = exports.kBuildbotWarning;
 var kBuildbotFailure = exports.kBuildbotFailure;
+
+////////////////////////////////////////////////////////////////////////////////
+//// Local Methods
+
+var gSuccessListeners = [];
+var gWarningListeners = [];
+var gFailureListeners = [];
+
+function notify(type, data)
+{
+  var callbacks;
+  switch(type) {
+    case kBuildbotSuccess:
+      callbacks = gSuccessListeners;
+      break;
+    case kBuildbotWarning:
+      callbacks = gSuccessListeners;
+      break;
+    case kBuildbotFailure:
+      callbacks = gSuccessListeners;
+      break;
+  }
+  callbacks.forEach(function(callback) {
+    try {
+      callback(data);
+    }
+    catch(e) {
+      console.error(e.stack);
+    }
+  });
+}
 
 function createBuildData(m)
 {
@@ -129,18 +167,11 @@ function messageConsumer(message)
 
   var data = createBuildData(message);
 
-  // Anything that isn't one of our constants we don't need to care about.
+  // On warning (orange) or error (red), we need to get the log filename first.
   if (data.result == kBuildbotWarning || data.result == kBuildbotFailure) {
     var handleLog = function(log) {
       data.logfile = log;
-      gListeners.forEach(function(callback) {
-        try {
-          callback(data);
-        }
-        catch (e) {
-          console.error(e.stack);
-        }
-      });
+      notify(data.result, data);
     };
 
     // Give tinderbox time to process the log file.  It may not happen by, then
@@ -148,8 +179,10 @@ function messageConsumer(message)
     setTimeout(function() { getLogPath(data.rev, data.slave, handleLog); },
                kTboxDelay);
   }
-  var d = key.split(".");
-  console.log("all good on this build (" + d[d.length - 2] + ")!");
+  // On success we can notify immediately.
+  else if (data.result == kBuildbotSuccess) {
+    notify(data.result, data);
+  }
 }
 
 var types = [

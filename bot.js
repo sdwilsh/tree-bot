@@ -1,17 +1,10 @@
 var irc = require("irc");
-var translate = require("translate");
 var format = require("./format");
 var reporter = require("./reporter");
 var builds = require("./builds");
+var welshify = require("./welshify");
 
 var kWelshChance = 0.01;
-
-function welshify(text, callback)
-{
-  translate.text({input:'English',output:'Welsh'}, text, function (err, result) {
-    callback(err ? text : result);
-  });
-}
 
 function interceptFormat(interceptor, originalfn)
 {

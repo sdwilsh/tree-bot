@@ -18,6 +18,7 @@ exports.on = function(topic, callback) {
     default:
       throw "invalid listener type";
   }
+  ensureInitialized();
 };
 
 exports.__defineGetter__("kBuildbotSuccess", function() { return 0; });
@@ -186,26 +187,36 @@ function messageConsumer(message)
   }
 }
 
-var types = [
-  // Whitelist only tests that are run on mozilla-central.
-  "mochitest-ipcplugins",
-  "mochitest-a11y",
-  "mochitest-plain-1",
-  "mochitest-plain-2",
-  "mochitest-plain-3",
-  "mochitest-plain-4",
-  "mochitest-plain-5",
-  "mochitest-chrome",
-  "mochitest-browser-chrome",
-  "reftest",
-  "reftest-ipc",
-  "jsreftest",
-  "jetpack",
-  "xpcshell",
-];
+var gConnection;
+function ensureInitialized()
+{
+  if (gConnection) {
+    // We're already initialized.  Nothing to do here...
+    return;
+  }
 
-var topics = [];
-types.forEach(function(type) {
-  topics.push("build.#.step.#." + type + ".finished");
-});
-var conn = new pulse.BuildConsumer("node-pulse-test", messageConsumer, topics);
+  var types = [
+    // Whitelist only tests that are run on mozilla-central.
+    "mochitest-ipcplugins",
+    "mochitest-a11y",
+    "mochitest-plain-1",
+    "mochitest-plain-2",
+    "mochitest-plain-3",
+    "mochitest-plain-4",
+    "mochitest-plain-5",
+    "mochitest-chrome",
+    "mochitest-browser-chrome",
+    "reftest",
+    "reftest-ipc",
+    "jsreftest",
+    "jetpack",
+    "xpcshell",
+  ];
+
+  var topics = [];
+  types.forEach(function(type) {
+    topics.push("build.#.step.#." + type + ".finished");
+  });
+  gConnection = new pulse.BuildConsumer("node-pulse-test", messageConsumer,
+                                        topics);
+}

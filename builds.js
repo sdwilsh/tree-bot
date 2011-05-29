@@ -170,22 +170,27 @@ function messageConsumer(message)
 
   var data = createBuildData(message);
 
-  // On warning (orange) or error (red), we need to get the log filename first.
-  if ((data.result == kBuildbotWarning && this.listeners("warning").length) ||
-      (data.result == kBuildbotFailure && this.listeners("failure").length)) {
-    var handleLog = function(log) {
-      data.logfile = log;
-      this.emit(getEventFromType(data.result), data);
-    }.bind(this);
+  getPusher(data.rev, function(pusher) {
+    data.pusher = pusher;
 
-    // Give tinderbox time to process the log file.
-    setTimeout(function() { getLogPath(data.rev, data.slave, handleLog); },
-               kTboxDelay);
-  }
-  // On success we can notify immediately.
-  else if (data.result == kBuildbotSuccess) {
-    this.emit(getEventFromType(data.result), data);
-  }
+    // On warning (orange) or error (red), we need to get the log filename
+    // first.
+    if ((data.result == kBuildbotWarning && this.listeners("warning").length) ||
+        (data.result == kBuildbotFailure && this.listeners("failure").length)) {
+      var handleLog = function(log) {
+        data.logfile = log;
+        this.emit(getEventFromType(data.result), data);
+      }.bind(this);
+
+      // Give tinderbox time to process the log file.
+      setTimeout(function() { getLogPath(data.rev, data.slave, handleLog); },
+                 kTboxDelay);
+    }
+    // On success we can notify immediately.
+    else if (data.result == kBuildbotSuccess) {
+      this.emit(getEventFromType(data.result), data);
+    }
+  });
 }
 
 ////////////////////////////////////////////////////////////////////////////////

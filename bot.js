@@ -16,10 +16,10 @@ function interceptFormat(interceptor, originalfn)
   };
 }
 
-function say()
+function say (channel)
 {
-  var text = format.apply(null, arguments);
-  client.say(kChannels[0], text);
+  var text = format.apply(null, Array.prototype.slice.call(arguments, 1));
+  client.say(channel, text);
 }
 
 var interceptors = [
@@ -27,7 +27,7 @@ var interceptors = [
   { 'chance' : 0.10, 'fn' : mehdify },
 ];
 
-function chooseCallbackFunction()
+function chooseCallbackFunction(origfn)
 {
   var chance = Math.random();
   var fn = undefined;
@@ -39,34 +39,63 @@ function chooseCallbackFunction()
     chance -= interceptors[i].chance;
   }
   if (fn === undefined) {
-    return say;
+    return orignfn;
   } else {
-    return interceptFormat(fn, say);
+    return interceptFormat(fn, origfn);
   }
 }
 
-function makeReporter(reporter)
-{
-  return function (event) {
-    var cb = chooseCallbackFunction();
-    reporter(cb, event);
-  }
+function Channel(name) {
+  var self = this;
+  this.name = name;
+  this.trees = {};
+  this.say = say.bind(this, name);
 }
 
-var watcher = new builds.Watcher();
-watcher.on("success", makeReporter(reporter.success));
-watcher.on("warning", makeReporter(reporter.warning));
-watcher.on("failure", makeReporter(reporter.failure));
+Channel.prototype = {
+  watch: function (name) {
+    if (this.trees.hasOwnProperty(name))
+      return;
+    var tree = this.trees[name] = new builds.Watcher(tree);
+    tree.on("success", this.makeReporter(reporter.success));
+    tree.on("warning", this.makeReporter(reporter.warning));
+    tree.on("failure", this.makeReporter(reporter.failure));
+  },
+  makeReporter: function (reporter) {
+    var fn = this.say;
+    return function (event) {
+      var cb = chooseCallbackFunction(fn);
+      reporter(cb, event);
+    }
+  }
+};
 
-var kChannels = [
-  "#afrosdwilsh",
+var kAuthorizedUsers = [
+  'sdwilsh', 'robarnold'
 ];
+
+var channels = {};
+function addChannel(name) {
+  if (channels.hasOwnProperty(name))
+    return;
+  var channel = channels[name] = new Channel(name);
+  client.join(name, function () {
+    reporter.greet(channel.say);
+    channel.watch('try');
+    channel.watch('mozilla-central');
+  });
+}
 
 var client = new irc.Client("irc.mozilla.org", "afrosdwilsh", {
   debug: true,
-  channels: kChannels,
+  channels: [],
 });
 
+client.on("invite", function (channel, from) {
+  if (kAuthorizedUsers.indexOf(from) !== -1) {
+    addChannel(channel);
+  }
+});
 client.addListener("error", function(m) {
   console.error(m);
 });

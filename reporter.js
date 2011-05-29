@@ -1,6 +1,11 @@
 var url = require("url");
 var shorturl = require("shorturl");
 
+exports.greet = function greet(cb)
+{
+  cb("o hai");
+}
+
 exports.success = function success(cb, event)
 {
   cb("Another successful build. Good job, team!");

@@ -195,7 +195,7 @@ function Watcher(tree)
     types.forEach(function(type) {
       topics.push("build.#.step.#." + type + ".finished");
     });
-    this._connection = new pulse.BuildConsumer("build-watcher",
+    this._connection = new pulse.BuildConsumer("build-watcher" + Date.now(),
                                                messageConsumer.bind(this),
                                                topics);
   }.bind(this));

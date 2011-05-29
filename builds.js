@@ -245,8 +245,8 @@ function Watcher(tree)
       topics.push("build.#.step.#." + type + ".finished");
     });
     this._connection = new pulse.BuildConsumer("build-watcher" + Date.now(),
-                                               messageConsumer.bind(this),
                                                topics);
+    this._connection.on("message", messageConsumer.bind(this));
   }.bind(this));
 }
 

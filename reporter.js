@@ -35,7 +35,7 @@ exports.success = function success(cb, event)
 
 exports.warning = function warning(cb, event)
 {
-  cb("Rev {0} on {1} doesn't look so hot...", event.rev, event.platform);
+  cb("{3}: test{2} with rev {0} on {1} doesn't look so hot...", event.rev, event.platform, event.type, event.tree);
 }
 
 exports.failure = function failure(cb, event)
@@ -44,10 +44,11 @@ exports.failure = function failure(cb, event)
     protocol: 'http',
     host: 'tbpl.mozilla.org',
     pathname: '/php/getTinderboxSummary.php',
+    // TODO: make this not hardcoded
     query: {tree:'Firefox',id:event.logfile}
   });
   shorturl(logurl, 'goo.gl', function (shorturl) {
-    cb("Looks like rev {0} on {1} had an oopsie", event.rev,  event.platform);
+    cb("{3}: looks like test {2} with rev {0} on {1} had an oopsie", event.rev,  event.platform, event.type, event.tree);
     cb("See {0} for more details", shorturl);
   });
 }

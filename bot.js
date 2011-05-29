@@ -17,6 +17,13 @@ function interceptFormat(interceptor, originalfn)
   };
 }
 
+function prepend(text)
+{
+  return function (orig, cb) {
+    cb(text + orig);
+  };
+}
+
 function say (channel)
 {
   var text = format.apply(null, Array.prototype.slice.call(arguments, 1));
@@ -60,6 +67,14 @@ Channel.prototype = {
       var cb = chooseCallbackFunction(fn);
       reporter(cb, event);
     }
+  },
+  tell: function (person) {
+    var self = this;
+    return function () {
+      var cb = chooseCallbackFunction(self.say);
+      cb = interceptFormat(prepend(person + ": "), cb);
+      cb.apply(self, arguments);
+    };
   },
   handleCommand: function (from, text) {
     var self = this;

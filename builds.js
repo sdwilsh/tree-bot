@@ -5,7 +5,7 @@ var http = require("http");
 ////////////////////////////////////////////////////////////////////////////////
 //// Constants
 
-var kTboxDelay = 60 * 1000; // 60 seconds
+var kTboxDelay = 2.5 * 60 * 1000; // 2 minutes, 30 seconds
 var kBuildbotSuccess = 0;
 var kBuildbotWarning = 1;
 var kBuildbotFailure = 2;

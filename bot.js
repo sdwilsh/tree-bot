@@ -4,6 +4,7 @@ var reporter = require("./reporter");
 var builds = require("./builds");
 var welshify = require("./welshify");
 var mehdify = require("./mehdify");
+var randompicker = require("./randompicker");
 
 function interceptFormat(interceptor, originalfn)
 {
@@ -29,15 +30,7 @@ var interceptors = [
 
 function chooseCallbackFunction(origfn)
 {
-  var chance = Math.random();
-  var fn = undefined;
-  for (var i = 0; i < interceptors.length; i++) {
-    if (interceptors[i].chance < chance) {
-      fn = interceptors[i].fn;
-      break;
-    }
-    chance -= interceptors[i].chance;
-  }
+  var fn = randompicker(interceptors, 'fn');
   if (fn === undefined) {
     return orignfn;
   } else {

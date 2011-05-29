@@ -39,6 +39,7 @@ function createBuildData(m)
 {
   var builddata = {
     key: m._meta.routing_key,
+    type: m.payload.step.name,
     buildid: undefined,
     platform: undefined,
     slave: undefined,

@@ -77,7 +77,6 @@ function createBuildData(m)
  */
 function getJSON(host, path, callback)
 {
-  console.info("loading " + host + path);
   var req = http.get({host: host, path: path}, function(res) {
     res.setEncoding("utf8");
     var data = "";
@@ -116,7 +115,7 @@ function getPusher(tree, cset, callback)
     */
     for (var push in data) {
       try {
-        callback(push.user);
+        callback(data[push].user);
       }
       catch(e) {
         console.error(e.stack);

@@ -151,8 +151,7 @@ function messageConsumer(message)
       this.emit(getEventFromType(data.result), data);
     }.bind(this);
 
-    // Give tinderbox time to process the log file.  It may not happen by, then
-    // though...
+    // Give tinderbox time to process the log file.
     setTimeout(function() { getLogPath(data.rev, data.slave, handleLog); },
                kTboxDelay);
   }

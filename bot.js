@@ -32,7 +32,7 @@ function chooseCallbackFunction(origfn)
 {
   var fn = randompicker(interceptors, 'fn');
   if (fn === undefined) {
-    return orignfn;
+    return origfn;
   } else {
     return interceptFormat(fn, origfn);
   }

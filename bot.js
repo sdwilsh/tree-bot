@@ -26,13 +26,6 @@ function prepend(text)
   };
 }
 
-function say (channel)
-{
-  var text = format.apply(null, Array.prototype.slice.call(arguments, 1));
-  if (text !== "")
-    client.say(channel, text);
-}
-
 var interceptors = [
   { 'chance' : 0.01, 'fn' : welshify },
   { 'chance' : 0.10, 'fn' : mehdify },
@@ -48,11 +41,14 @@ function chooseCallbackFunction(origfn)
   }
 }
 
-function Channel(name) {
-  var self = this;
+function Channel(name, output) {
   this.name = name;
   this.trees = {};
-  this.say = say.bind(this, name);
+  this.say = function () {
+    var text = format.apply(null, arguments);
+    if (text !== "")
+      output(text);
+  };
 }
 
 Channel.prototype = {
@@ -101,7 +97,7 @@ var channels = {};
 function addChannel(name) {
   if (channels.hasOwnProperty(name))
     return;
-  var channel = channels[name] = new Channel(name);
+  var channel = channels[name] = new Channel(name, client.say.bind(client, name));
   client.join(name, function () {
     reporter.greet(channel.say);
   });

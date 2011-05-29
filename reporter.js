@@ -1,9 +1,24 @@
 var url = require("url");
 var shorturl = require("shorturl");
+var randompicker = require('./randompicker');
+
+var greetings = [
+  { chance: 0.1, text: "o hai" },
+  { chance: 0.1, text: "The permasheriff is, uh...back" },
+  { chance: 0.1, text: "Greetings!" },
+  { chance: 0.1, text: "Never fear, the permasheriff has arrived" },
+  { chance: 0.1, text: "Today feels like a good day to sheriff" },
+  { chance: 0.1, text: "There better not be any red on my watch" },
+  { chance: 0.1, text: "Don't mess with the fro" },
+  { chance: 0.1, text: "Green is my favorite colour.  Let's keep the tree that way today." },
+  { chance: 0.1, text: "I dislike orange and red.  Let's make sure I don't see any of that today" },
+  { chance: 0.1, text: "I've got $10 on an intermittent orange being fixed today.  I'll share some of that to whoever fixes one first!" },
+];
 
 exports.greet = function greet(cb)
 {
-  cb("o hai");
+  var text = randompicker(greetings, 'text');
+  cb(text);
 }
 
 exports.success = function success(cb, event)

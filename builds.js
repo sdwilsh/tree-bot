@@ -25,6 +25,16 @@ function getEventFromType(type)
   }
 }
 
+function getTinderboxFromTree(tree)
+{
+  switch(tree) {
+    case "mozilla-central":
+      return "Firefox";
+    case "try":
+      return "Try";
+  }
+}
+
 function createBuildData(m)
 {
   var builddata = {
@@ -67,6 +77,7 @@ function createBuildData(m)
  */
 function getJSON(host, path, callback)
 {
+  console.info("loading " + host + path);
   var req = http.get({host: host, path: path}, function(res) {
     res.setEncoding("utf8");
     var data = "";
@@ -87,9 +98,9 @@ function getJSON(host, path, callback)
   });
 }
 
-function getPusher(cset, callback)
+function getPusher(tree, cset, callback)
 {
-  getJSON("hg.mozilla.org", "mozilla-central/json-pushes?changeset=" + cset,
+  getJSON("hg.mozilla.org", "/" + tree + "/json-pushes?changeset=" + cset,
           function(data) {
     /* data looks like this:
     {
@@ -114,11 +125,13 @@ function getPusher(cset, callback)
   });
 }
 
-function getLogPath(cset, slave, callback)
+function getLogPath(tree, cset, slave, callback)
 {
   console.info("Looking for " + cset + " on " + slave);
+  var tbox = getTinderboxFromTree(tree);
+
   // Get the JSON because Pulse knows nothing about where the logs are :(
-  getJSON("tinderbox.mozilla.org", "/Firefox/json2.js", function(data) {
+  getJSON("tinderbox.mozilla.org", "/" + tbox + "/json2.js", function(data) {
     var builds = data.builds;
     /* Format looks like:
       { warnings_enabled: 0,
@@ -156,7 +169,7 @@ function getLogPath(cset, slave, callback)
     console.error("no dice, so trying again for " + cset);
 
     // We didn't find it.  Reschedule ourselves to look again...
-    setTimeout(function() { getLogPath(cset, slave, callback); }, kTboxDelay);
+    setTimeout(getLogPath, kTboxDelay, tree, cset, slave, callback);
   });
 }
 
@@ -170,7 +183,7 @@ function messageConsumer(message)
 
   var data = createBuildData(message);
 
-  getPusher(data.rev, function(pusher) {
+  getPusher(this.tree, data.rev, function(pusher) {
     data.pusher = pusher;
 
     // On warning (orange) or error (red), we need to get the log filename
@@ -183,14 +196,14 @@ function messageConsumer(message)
       }.bind(this);
 
       // Give tinderbox time to process the log file.
-      setTimeout(function() { getLogPath(data.rev, data.slave, handleLog); },
-                 kTboxDelay);
+      setTimeout(getLogPath, kTboxDelay, this.tree, data.rev, data.slave,
+                 handleLog);
     }
     // On success we can notify immediately.
     else if (data.result == kBuildbotSuccess) {
       this.emit(getEventFromType(data.result), data);
     }
-  });
+  }.bind(this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

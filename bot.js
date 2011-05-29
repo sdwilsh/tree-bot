@@ -63,6 +63,7 @@ Channel.prototype = {
   }
 };
 
+var kNick = 'afrosdwilsh';
 var kAuthorizedUsers = [
   'sdwilsh', 'robarnold'
 ];
@@ -79,11 +80,13 @@ function addChannel(name) {
   });
 }
 
-var client = new irc.Client("irc.mozilla.org", "afrosdwilsh", {
+var client = new irc.Client("irc.mozilla.org", kNick, {
   debug: true,
-  userName: "afrosdwilsh",
+  userName: kNick,
   realName: "Permasheriff Extraordinaire",
   channels: [],
+  secure: true,
+  port: 6697
 });
 
 client.on("invite", function (channel, from) {

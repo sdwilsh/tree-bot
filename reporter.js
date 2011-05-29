@@ -21,9 +21,16 @@ exports.greet = function greet(cb)
   cb(text);
 }
 
+var successes = [
+  { chance: 0.01, text: "Another successful build. Good job, team!" },
+  { chance: 0.01, text: "Code compiled and passed tests...we're not totally fucked!" },
+  { chance: 0.98, text: "" }
+];
+
 exports.success = function success(cb, event)
 {
-  cb("Another successful build. Good job, team!");
+  var text = randompicker(successes, 'text');
+  cb(text);
 }
 
 exports.warning = function warning(cb, event)

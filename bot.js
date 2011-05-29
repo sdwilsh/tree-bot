@@ -1,6 +1,20 @@
 var irc = require("irc");
 var channels = require("./channels");
 
+var mode = 'irc';
+if (process.argv.length > 2)
+  mode = process.argv[2];
+if (mode === 'console') {
+  // Console channel
+  var consoleChannel = channels.add('<console>', console.log);
+  process.stdin.resume();
+  process.stdin.on('data', function (text) {
+    consoleChannel.handleCommand(text.toString('utf8'));
+  });
+  return;
+}
+
+// Connect to IRC
 var kNick = 'afrosdwilsh';
 var kAuthorizedUsers = [
   'sdwilsh', 'robarnold'

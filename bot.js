@@ -60,6 +60,17 @@ Channel.prototype = {
       var cb = chooseCallbackFunction(fn);
       reporter(cb, event);
     }
+  },
+  handleCommand: function (from, text) {
+    var self = this;
+    function tryCommand(matcher, cb) {
+      var match = matcher.exec(text);
+      if (match) {
+        cb.apply(self, Array.prototype.slice.call(match, 1));
+      }
+      return match != null;
+    }
+    tryCommand(/^watch (.+)$/, this.watch);
   }
 };
 
@@ -75,8 +86,6 @@ function addChannel(name) {
   var channel = channels[name] = new Channel(name);
   client.join(name, function () {
     reporter.greet(channel.say);
-    channel.watch('try');
-    channel.watch('mozilla-central');
   });
 }
 
@@ -98,11 +107,17 @@ client.addListener("error", function(m) {
   console.error(m);
 });
 client.addListener("message", function(from, to, message) {
-  var action = /ACTION (.+)/.exec(message);
-  if (action) {
-    console.log(" * " + from + " " + action[1]);
-  }
-  else {
-    console.log("<" + from + "> " + message);
+  if (!channels.hasOwnProperty(to))
+    return;
+
+  var channel = channels[to];
+  var match = /(.+): (.*)/.exec(message);
+  if (match) {
+    target = match[1];
+    text = match[2];
+
+    if (target === kNick) {
+      channel.handleCommand(from, text);
+    }
   }
 });

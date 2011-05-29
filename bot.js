@@ -10,6 +10,8 @@ function interceptFormat(interceptor, originalfn)
 {
   return function () {
     var args = arguments;
+    if (args[0] === "")
+      return;
     interceptor(args[0], function (fmt) {
       args[0] = fmt;
       originalfn.apply(null, args);
@@ -27,7 +29,8 @@ function prepend(text)
 function say (channel)
 {
   var text = format.apply(null, Array.prototype.slice.call(arguments, 1));
-  client.say(channel, text);
+  if (text !== "")
+    client.say(channel, text);
 }
 
 var interceptors = [

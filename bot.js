@@ -81,6 +81,8 @@ function addChannel(name) {
 
 var client = new irc.Client("irc.mozilla.org", "afrosdwilsh", {
   debug: true,
+  userName: "afrosdwilsh",
+  realName: "Permasheriff Extraordinaire",
   channels: [],
 });
 

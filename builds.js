@@ -181,6 +181,7 @@ function messageConsumer(message)
   }
 
   var data = createBuildData(message);
+  data.tree = this.tree;
 
   getPusher(this.tree, data.rev, function(pusher) {
     data.pusher = pusher;

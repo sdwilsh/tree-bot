@@ -87,6 +87,33 @@ function getJSON(host, path, callback)
   });
 }
 
+function getPusher(cset, callback)
+{
+  getJSON("hg.mozilla.org", "mozilla-central/json-pushes?changeset=" + cset,
+          function(data) {
+    /* data looks like this:
+    {
+      "20273": {
+        "date": 1306616155,
+        "changesets": [
+          "2c7a0ec1fd837295969b4a1f09c70f86e96e1efa",
+          "290993adeb2ede9ded7a1496ed76c695637b244d"
+        ],
+        "user": "philringnalda@gmail.com"
+      }
+    }
+    */
+    for (var push in data) {
+      try {
+        callback(push.user);
+      }
+      catch(e) {
+        console.error(e.stack);
+      }
+    }
+  });
+}
+
 function getLogPath(cset, slave, callback)
 {
   console.info("Looking for " + cset + " on " + slave);

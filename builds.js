@@ -221,8 +221,6 @@ function Watcher(tree)
   this.once("newListener", function() {
     var types = [
       // Whitelist only tests that are run on mozilla-central.
-      "mochitest-ipcplugins",
-      "mochitest-a11y",
       "mochitest-plain-1",
       "mochitest-plain-2",
       "mochitest-plain-3",
@@ -230,11 +228,16 @@ function Watcher(tree)
       "mochitest-plain-5",
       "mochitest-chrome",
       "mochitest-browser-chrome",
-      "reftest",
-      "reftest-ipc",
+      "mochitest-a11y",
+      "mochitest-ipcplugins",
+      "crashtest",
+      "crashtest-ipc",
       "jsreftest",
-      "jetpack",
+      "reftest",
+      "opengl-no-accel",
+      "reftest-ipc",
       "xpcshell",
+      "jetpack",
     ];
 
     var topics = [];

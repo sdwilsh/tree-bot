@@ -33,7 +33,7 @@ function chooseCallbackFunction()
   var fn = undefined;
   for (var i = 0; i < interceptors.length; i++) {
     if (interceptors[i].chance < chance) {
-      fn = interceptor[i].fn;
+      fn = interceptors[i].fn;
       break;
     }
     chance -= interceptors[i].chance;

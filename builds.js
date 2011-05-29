@@ -238,6 +238,7 @@ function Watcher(tree)
       "reftest-ipc",
       "xpcshell",
       "jetpack",
+      "check",
     ];
 
     var topics = [];

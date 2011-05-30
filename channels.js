@@ -4,6 +4,7 @@ var builds = require("./builds");
 var welshify = require("./welshify");
 var mehdify = require("./mehdify");
 var randompicker = require("./randompicker");
+var committers = require("./committers");
 
 function interceptFormat(interceptor, originalfn)
 {
@@ -110,6 +111,16 @@ ChannelController.prototype = {
     this.channel.unwatch(tree);
     this.channel.tell(from)("No longer watching {0}", tree);
   },
+  identify: function (from, email, name) {
+    // Identity is reflexive, canonicalize order if necessary
+    if (/(.+)@(.+)/.test(name)) {
+      var tmp = name;
+      name = email;
+      email = tmp;
+    }
+    committers.add(email, name);
+    this.channel.tell(from)("thank you!");
+  },
   handleCommand: function (from, text) {
     var self = this;
     function tryCommand(matcher, cb) {
@@ -122,6 +133,7 @@ ChannelController.prototype = {
     }
     tryCommand(/^watch (.+)$/, this.watch);
     tryCommand(/^unwatch (.+)$/, this.unwatch);
+    tryCommand(/^(.+) is (.+)$/, this.identify);
   }
 };
 

@@ -41,7 +41,7 @@ exports.events = testCase({
   setUp: function(callback)
   {
     // These tests will end up calling http.get to get data from some other
-    // service.  This test is responsible for establishing what is supposed to
+    // service.  The test is responsible for establishing what is supposed to
     // be returned, but we'll mock out get for them so they don't have to.
     this._originalGet = http.get;
 

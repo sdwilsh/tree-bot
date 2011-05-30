@@ -48,6 +48,7 @@ function Channel(name, output) {
     if (text !== "")
       output(text);
   };
+  this.controller = new ChannelController(this);
 }
 
 Channel.prototype = {
@@ -76,11 +77,27 @@ Channel.prototype = {
     };
   },
   handleCommand: function (from, text) {
+    this.controller.handleCommand(from, text);
+  }
+};
+
+function ChannelController(channel)
+{
+  this.channel = channel;
+}
+
+ChannelController.prototype = {
+  watch: function (from, tree) {
+    this.channel.watch(tree);
+    this.channel.tell(from)("Now watching {0}", tree);
+  },
+  handleCommand: function (from, text) {
     var self = this;
     function tryCommand(matcher, cb) {
       var match = matcher.exec(text);
       if (match) {
-        cb.apply(self, Array.prototype.slice.call(match, 1));
+        Array.prototype.splice.call(match, 0, 1, from);
+        cb.apply(self, match);
       }
       return match != null;
     }

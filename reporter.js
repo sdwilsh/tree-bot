@@ -57,7 +57,7 @@ exports.failure = function failure(cb, event)
     query: {tree:'Firefox',id:event.logfile}
   });
   shorturl(logurl, 'goo.gl', function (shorturl) {
-    lookupPusher(event.pusher, function (name) {
+    committers.lookup(event.pusher, function (name) {
       cb("{0}: Did you try compiling before pushing? There's a build failure on {1}, see {2} for details", name, event.platform, shorturl);
     }, function (name) {
       if (name === undefined) {

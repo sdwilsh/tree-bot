@@ -257,5 +257,7 @@ Watcher.prototype = Object.create(events.EventEmitter.prototype);
 Watcher.__defineGetter__("kBuildbotSuccess", function() { return kBuildbotSuccess; });
 Watcher.__defineGetter__("kBuildbotWarning", function() { return kBuildbotWarning; });
 Watcher.__defineGetter__("kBuildbotFailure", function() { return kBuildbotFailure; });
+Watcher.__defineGetter__("kTboxDelay", function() { return kTboxDelay; });
+Watcher.__defineSetter__("kTboxDelay", function(val) { return kTboxDelay = val; });
 
 exports.Watcher = Watcher;

@@ -239,6 +239,7 @@ function Watcher(tree)
       "xpcshell",
       "jetpack",
       "check",
+      "compile",
     ];
 
     var topics = [];

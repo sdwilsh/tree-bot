@@ -1,20 +1,7 @@
-var fs = require("fs");
 var url = require("url");
 var shorturl = require("shorturl");
 var randompicker = require('./randompicker');
-
-var committers = JSON.parse(fs.readFileSync('committers.json', 'utf8'));
-function lookupPusher(email, certain, guess)
-{
-  if (committers.hasOwnProperty(email)) {
-    return certain(committers[email]);
-  }
-  var guessMatch = /(.+)@(.+)/.exec(email);
-  if (guessMatch) {
-    return guess(guessMatch[1]);
-  }
-  return guess(undefined);
-}
+var committers = require('./committers');
 
 var greetings = [
   { chance: 0.1, text: "o hai" },
@@ -49,7 +36,7 @@ exports.success = function success(cb, event)
 
 exports.warning = function warning(cb, event)
 {
-  lookupPusher(event.pusher, function (name) {
+  committers.lookup(event.pusher, function (name) {
     cb("{0}: I see test failures in {1} on {2} with your push of {3} to {4}", name, event.type, event.platform, event.rev, event.tree);
   }, function (name) {
     if (name === undefined) {

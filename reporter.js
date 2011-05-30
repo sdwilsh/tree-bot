@@ -23,9 +23,9 @@ exports.greet = function greet(cb)
 }
 
 var successes = [
-  { chance: 0.01, text: "Another successful build. Good job, team!" },
-  { chance: 0.01, text: "Code compiled and passed tests...we're not totally fucked!" },
-  { chance: 0.98, text: "" }
+  { chance: 0.0003, text: "Another successful build. Good job, team!" },
+  { chance: 0.0001, text: "Code compiled and passed tests...we're not totally fucked!" },
+  { chance: 0.9996, text: "" }
 ];
 
 exports.success = function success(cb, event)

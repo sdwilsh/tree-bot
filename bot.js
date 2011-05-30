@@ -9,7 +9,7 @@ if (mode === 'console') {
   var consoleChannel = channels.add('<console>', console.log);
   process.stdin.resume();
   process.stdin.on('data', function (text) {
-    consoleChannel.handleCommand(text.toString('utf8'));
+    consoleChannel.handleCommand('', text.toString('utf8').trim());
   });
   return;
 }

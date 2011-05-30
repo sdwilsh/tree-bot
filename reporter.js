@@ -1,6 +1,20 @@
+var fs = require("fs");
 var url = require("url");
 var shorturl = require("shorturl");
 var randompicker = require('./randompicker');
+
+var committers = JSON.parse(fs.readFileSync('committers.json', 'utf8'));
+function lookupPusher(email, certain, guess)
+{
+  if (committers.hasOwnProperty(email)) {
+    return certain(committers[email]);
+  }
+  var guessMatch = /(.+)@(.+)/.exec(email);
+  if (guessMatch) {
+    return guess(guessMatch[1]);
+  }
+  return guess(undefined);
+}
 
 var greetings = [
   { chance: 0.1, text: "o hai" },
@@ -35,7 +49,15 @@ exports.success = function success(cb, event)
 
 exports.warning = function warning(cb, event)
 {
-  cb("{3}: test{2} with rev {0} on {1} doesn't look so hot...", event.rev, event.platform, event.type, event.tree);
+  lookupPusher(event.pusher, function (name) {
+    cb("{0}: I see test failures in {1} on {2} with your push of {3} to {4}", name, event.type, event.platform, event.rev, event.tree);
+  }, function (name) {
+    if (name === undefined) {
+      cb("Who the hell is {0} and why did they make {1} go orange?", event.pusher, event.tree);
+    } else {
+      cb("Who the hell is {0} ({2}?) and why did they make {1} go orange?", event.pusher, event.tree, name);
+    }
+  });
 }
 
 exports.failure = function failure(cb, event)
@@ -48,7 +70,14 @@ exports.failure = function failure(cb, event)
     query: {tree:'Firefox',id:event.logfile}
   });
   shorturl(logurl, 'goo.gl', function (shorturl) {
-    cb("{3}: looks like test {2} with rev {0} on {1} had an oopsie", event.rev,  event.platform, event.type, event.tree);
-    cb("See {0} for more details", shorturl);
+    lookupPusher(event.pusher, function (name) {
+      cb("{0}: Did you try compiling before pushing? There's a build failure on {1}, see {2} for details", name, event.platform, shorturl);
+    }, function (name) {
+      if (name === undefined) {
+        cb("Who the hell is {0} and why did they break {1}? See {2} for details.", event.pusher, event.tree, shorturl);
+      } else {
+        cb("Who the hell is {0} ({2}?) and why did they break {1}? See {3} for details", event.pusher, event.tree, name, shorturl);
+      }
+    });
   });
 }

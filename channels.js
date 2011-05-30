@@ -5,6 +5,7 @@ var welshify = require("./welshify");
 var mehdify = require("./mehdify");
 var randompicker = require("./randompicker");
 var committers = require("./committers");
+var textutils = require("./textutils");
 
 function interceptFormat(interceptor, originalfn)
 {
@@ -104,7 +105,7 @@ function ChannelController(channel)
 ChannelController.prototype = {
   watch: function (from, tree) {
     this.channel.watch(tree);
-    var trees = Object.keys(this.channel.trees).join(" ");
+    var trees = textutils.naturalJoin(Object.keys(this.channel.trees));
     this.channel.tell(from)("Now watching: {0}", trees);
   },
   unwatch: function (from, tree) {

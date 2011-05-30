@@ -3,6 +3,8 @@ exports.naturalJoin = function (args) {
     return "";
   if (args.length === 1)
     return args[0];
+  if (args.length === 2)
+    return Array.prototype.join.call(args, " and ");
   var last = Array.prototype.splice.call(args, -1, 1);
   return Array.prototype.join.call(args, ", ") + ", and " + last;
 }

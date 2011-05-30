@@ -66,6 +66,7 @@ exports.events = testCase({
   tearDown: function(callback)
   {
     http.get = this.originalGet;
+    gBuildConsumer = undefined;
     callback();
   },
 

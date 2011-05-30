@@ -15,9 +15,12 @@ pulse.BuildConsumer = MockBuildConsumer;
 //// Test Functions
 
 exports.test_no_work_until_listener = function(test) {
-  test.expect(1);
+  test.expect(2);
   var w = new builds.Watcher();
-  test.ok(!w.called);
+  test.strictEqual(w._connection, undefined);
+
+  w.on("success", function() {});
+  test.ok(w._connection);
   test.done();
 };
 

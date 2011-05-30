@@ -1,0 +1,11 @@
+{
+ "20865": {
+  "date": 1306715315, 
+  "changesets": [
+   "3c847091b7c298c933e4e4503333716d329564bc", 
+   "b55bc59a44c925fa32e52a13c3d7b5434cc9c344", 
+   "fc3192320c5f23eadcf36757a01f67fa760075ed"
+  ], 
+  "user": "ibukanov@mozilla.com"
+ }
+}

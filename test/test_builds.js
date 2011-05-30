@@ -47,6 +47,7 @@ exports.events = testCase({
 
     this.hosts = {};
     http.get = function(options, callback) {
+      console.log(options.host + options.path);
       assert.ok(options.host in this.hosts);
       var paths = this.hosts[options.host];
       assert.ok(options.path in paths);
@@ -61,11 +62,17 @@ exports.events = testCase({
       res.emit("end");
       return new events.EventEmitter();
     }.bind(this);
+
+    // There's no need to delay in loading tinderbox data for tests.
+    this._originalTboxDelay = builds.Watcher.kTboxDelay;
+    builds.Watcher.kTboxDelay = 0;
+
     callback();
   },
   tearDown: function(callback)
   {
     http.get = this.originalGet;
+    builds.Watcher.kTboxDelay = this._originalTboxDelay;
     gBuildConsumer = undefined;
     callback();
   },
@@ -89,6 +96,33 @@ exports.events = testCase({
       test.done();
     });
     var response = JSON.parse(fs.readFileSync("mochitest-plain-2.success.json",
+                                              "utf8"));
+    gBuildConsumer.emit("message", response);
+  },
+
+  test_warning_event: function(test) {
+    test.expect(9);
+    this.hosts["hg.mozilla.org"] = {
+      "/try/json-pushes?changeset=fc3192320c5f":
+        fs.readFileSync("json-pushes.fc3192320c5f.json", "utf8"),
+    };
+    this.hosts["tinderbox.mozilla.org"] = {
+      "/Try/json2.js": fs.readFileSync("tinderbox.json2.json", "utf8"),
+    };
+    var w = new builds.Watcher("try");
+    w.on("warning", function(build) {
+      test.ok(build.key);
+      test.equal(build.type, "mochitest-plain-4");
+      test.equal(build.platform, "macosx");
+      test.equal(build.slave, "talos-r3-leopard-051");
+      test.equal(build.rev, "fc3192320c5f");
+      test.equal(build.result, builds.Watcher.kBuildbotWarning);
+      test.equal(build.tree, "try");
+      test.equal(build.pusher, "ibukanov@mozilla.com");
+      test.equal(build.logfile, "1306719139.1306723720.10280.gz");
+      test.done();
+    });
+    var response = JSON.parse(fs.readFileSync("mochitest-plain-4.warning.json",
                                               "utf8"));
     gBuildConsumer.emit("message", response);
   },

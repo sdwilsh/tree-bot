@@ -70,7 +70,8 @@ Channel.prototype = {
     var self = this;
     return function () {
       var cb = chooseCallbackFunction(self.say);
-      cb = interceptFormat(prepend(person + ": "), cb);
+      if (person !== '')
+        cb = interceptFormat(prepend(person + ": "), cb);
       cb.apply(self, arguments);
     };
   },

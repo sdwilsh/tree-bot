@@ -4,9 +4,10 @@ var testCase = require("nodeunit").testCase;
 
 // Before we do anything, we need to modify BuildConsumer so that it does not
 // actually try to connect to pulse.
+var gBuildConsumer = undefined;
 function MockBuildConsumer()
 {
-  this.called = true;
+  gBuildConsumer = this;
 }
 MockBuildConsumer.prototype = Object.create(pulse.BuildConsumer.prototype);
 pulse.BuildConsumer = MockBuildConsumer;
@@ -17,10 +18,10 @@ pulse.BuildConsumer = MockBuildConsumer;
 exports.test_no_work_until_listener = function(test) {
   test.expect(2);
   var w = new builds.Watcher();
-  test.strictEqual(w._connection, undefined);
+  test.strictEqual(gBuildConsumer, undefined);
 
   w.on("success", function() {});
-  test.ok(w._connection);
+  test.ok(gBuildConsumer);
   test.done();
 };
 

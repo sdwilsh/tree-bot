@@ -1,3 +1,4 @@
+var textutils = require('./textutils');
 var replace_dict = { 'awesome': 'awesome/terrible',
                      'terrible': 'awesome/terrible',
                      'best': 'best/worst',
@@ -10,6 +11,9 @@ var replace_dict = { 'awesome': 'awesome/terrible',
 function randint(a,b) {
   return a + parseInt((1 + b - a) * Math.random(), 10);
 }
+
+var awwyeah = textutils.prepend('aww yeah, ');
+var whoa = textutils.prepend('whoa, ');
 
 module.exports = function (status, callback) {
   // replace some adjectives
@@ -26,13 +30,13 @@ module.exports = function (status, callback) {
   }
   // try and determine if the tweet asks a question
   else if (/\?.{0,4}$/.test(status)) {
-    callback('u' + 'hhhhhh'.substring(randint(0,5)) + ' ' + status)
+    prepend('u' + 'hhhhhh'.substring(randint(0,5)) + ' ')(status, callback);
   }
   // prepend "aww yeah" or "whoa" to some tweets
   else if (Math.random() > 0.5) {
-    callback('aww yeah, ' + status);
+    awwyeah(status, callback);
   }
   else {
-    callback('whoa, ' + status)
+    whoa(status, callback)
   }
 };

@@ -20,13 +20,6 @@ function interceptFormat(interceptor, originalfn)
   };
 }
 
-function prepend(text)
-{
-  return function (orig, cb) {
-    cb(text + orig);
-  };
-}
-
 var interceptors = [
   { 'chance' : 0.01, 'fn' : welshify },
   { 'chance' : 0.10, 'fn' : mehdify },
@@ -88,7 +81,7 @@ Channel.prototype = {
     return function () {
       var cb = chooseCallbackFunction(self.say);
       if (person !== '')
-        cb = interceptFormat(prepend(person + ": "), cb);
+        cb = interceptFormat(textutils.prepend(person + ": "), cb);
       cb.apply(self, arguments);
     };
   },

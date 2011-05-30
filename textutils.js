@@ -6,3 +6,13 @@ exports.naturalJoin = function (args) {
   var last = Array.prototype.splice.call(args, -1, 1);
   return Array.prototype.join.call(args, ", ") + ", and " + last;
 }
+
+exports.prepend = function prepend(text)
+{
+  return function (orig, cb) {
+    // Lower the first letter of the original text
+    var lowered = orig.slice(0, 1).toLowerCase() + orig.slice(1);
+    cb(text + lowered);
+  };
+}
+

@@ -55,10 +55,24 @@ Channel.prototype = {
   watch: function (name) {
     if (this.trees.hasOwnProperty(name))
       return;
-    var tree = this.trees[name] = new builds.Watcher(tree);
-    tree.on("success", this.makeReporter(reporter.success));
-    tree.on("warning", this.makeReporter(reporter.warning));
-    tree.on("failure", this.makeReporter(reporter.failure));
+    var tree = this.trees[name] = {
+      watcher: new builds.Watcher(tree),
+      success: this.makeReporter(reporter.success),
+      warning: this.makeReporter(reporter.warning),
+      failure: this.makeReporter(reporter.failure)
+    };
+    tree.watcher.on("success", tree.success);
+    tree.watcher.on("warning", tree.warning);
+    tree.watcher.on("failure", tree.failure);
+  },
+  unwatch: function (name) {
+    if (!this.trees.hasOwnProperty(name))
+      return;
+    var tree = this.trees[name];
+    tree.watcher.removeListener("success", tree.success);
+    tree.watcher.removeListener("warning", tree.warning);
+    tree.watcher.removeListener("failure", tree.failure);
+    delete this.trees[name];
   },
   makeReporter: function (reporter) {
     var fn = this.say;
@@ -89,7 +103,12 @@ function ChannelController(channel)
 ChannelController.prototype = {
   watch: function (from, tree) {
     this.channel.watch(tree);
-    this.channel.tell(from)("Now watching {0}", tree);
+    var trees = Object.keys(this.channel.trees).join(" ");
+    this.channel.tell(from)("Now watching: {0}", trees);
+  },
+  unwatch: function (from, tree) {
+    this.channel.unwatch(tree);
+    this.channel.tell(from)("No longer watching {0}", tree);
   },
   handleCommand: function (from, text) {
     var self = this;
@@ -102,6 +121,7 @@ ChannelController.prototype = {
       return match != null;
     }
     tryCommand(/^watch (.+)$/, this.watch);
+    tryCommand(/^unwatch (.+)$/, this.unwatch);
   }
 };
 

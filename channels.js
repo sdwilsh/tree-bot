@@ -39,6 +39,7 @@ function chooseCallbackFunction(origfn)
 function Channel(name, output) {
   this.name = name;
   this.trees = {};
+  this.watches = new TemporalCache();
   this.say = function () {
     var text = format.apply(null, arguments);
     if (text !== "")
@@ -73,6 +74,18 @@ Channel.prototype = {
       tree.reportStatus.add(event.rev, event.result, 12);
       reporter(cb, event);
     }
+  },
+  watchChangeset: function (treeName, rev, who) {
+    var key = treeName+rev+who;
+    // TODO: make this a pm
+    var cb = this.tell(who);
+    var watcher = new builds.Watcher(treeName);
+    // Do individual success reports matter?
+    //watcher.on("success", reporter.success.bind(reporter, cb));
+    watcher.on("warning", reporter.warning.bind(reporter, cb));
+    watcher.on("failure", reporter.failure.bind(reporter, cb));
+    // Watch for 12 hours - then no more
+    this.watches.add(key, watcher, 12);
   },
   unwatch: function (name) {
     if (!this.trees.hasOwnProperty(name))
@@ -112,6 +125,15 @@ ChannelController.prototype = {
     this.channel.unwatch(tree);
     this.channel.tell(from)("No longer watching {0}", tree);
   },
+  watchTree: function (from, rev, tree, who) {
+    if (who === undefined) {
+      this.channel.watchChangeset(tree, rev, from);
+      this.channel.tell(from)("I'll let you know if {0} burns {1}", rev, tree);
+    } else {
+      this.channel.watchChangeset(tree, rev, who);
+      this.channel.tell(from)("I'll let {2} know if {0} burns {1}", rev, tree, who);
+    }
+  },
   identify: function (from, email, name) {
     // Identity is reflexive, canonicalize order if necessary
     if (/(.+)@(.+)/.test(name)) {
@@ -132,9 +154,10 @@ ChannelController.prototype = {
       }
       return match != null;
     }
-    tryCommand(/^watch (.+)$/, this.watch);
+    tryCommand(/^watch ([A-Za-z-]+)$/, this.watch);
     tryCommand(/^unwatch (.+)$/, this.unwatch);
     tryCommand(/^(.+) is (.+)$/, this.identify);
+    tryCommand(/^watch ([A-Fa-f0-9]+) on ([A-Za-z-]+)(?: for (.+))?/, this.watchTree);
   }
 };
 

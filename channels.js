@@ -6,6 +6,7 @@ var mehdify = require("./mehdify");
 var randompicker = require("./randompicker");
 var committers = require("./committers");
 var textutils = require("./textutils");
+var TemporalCache = require("./temporalcache");
 
 function interceptFormat(interceptor, originalfn)
 {
@@ -55,6 +56,7 @@ Channel.prototype = {
       success: this._treeStatusCallback.bind(this, name, 'success', reporter.success),
       warning: this._treeStatusCallback.bind(this, name, 'warning', reporter.warning),
       failure: this._treeStatusCallback.bind(this, name, 'failure', reporter.failure),
+      reportStatus: new TemporalCache(),
     };
     tree.watcher.on("success", tree.success);
     tree.watcher.on("warning", tree.warning);
@@ -62,7 +64,15 @@ Channel.prototype = {
   },
   _treeStatusCallback: function (name, type, reporter, event) {
     var cb = chooseCallbackFunction(this.say);
-    reporter(cb, event);
+    var tree = this.trees[name];
+    if (tree === undefined)
+      return;
+    var status = tree.reportStatus.get(event.rev);
+    if (status === undefined || event.result > status) {
+      // Remember status for 4 hours
+      tree.reportStatus.add(event.rev, event.result, 12);
+      reporter(cb, event);
+    }
   },
   unwatch: function (name) {
     if (!this.trees.hasOwnProperty(name))

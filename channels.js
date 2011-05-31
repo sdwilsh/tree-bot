@@ -52,13 +52,17 @@ Channel.prototype = {
       return;
     var tree = this.trees[name] = {
       watcher: new builds.Watcher(tree),
-      success: this.makeReporter(reporter.success),
-      warning: this.makeReporter(reporter.warning),
-      failure: this.makeReporter(reporter.failure)
+      success: this._treeStatusCallback.bind(this, name, 'success', reporter.success),
+      warning: this._treeStatusCallback.bind(this, name, 'warning', reporter.warning),
+      failure: this._treeStatusCallback.bind(this, name, 'failure', reporter.failure),
     };
     tree.watcher.on("success", tree.success);
     tree.watcher.on("warning", tree.warning);
     tree.watcher.on("failure", tree.failure);
+  },
+  _treeStatusCallback: function (name, type, reporter, event) {
+    var cb = chooseCallbackFunction(this.say);
+    reporter(cb, event);
   },
   unwatch: function (name) {
     if (!this.trees.hasOwnProperty(name))
@@ -68,13 +72,6 @@ Channel.prototype = {
     tree.watcher.removeListener("warning", tree.warning);
     tree.watcher.removeListener("failure", tree.failure);
     delete this.trees[name];
-  },
-  makeReporter: function (reporter) {
-    var fn = this.say;
-    return function (event) {
-      var cb = chooseCallbackFunction(fn);
-      reporter(cb, event);
-    }
   },
   tell: function (person) {
     var self = this;

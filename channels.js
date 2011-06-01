@@ -36,15 +36,20 @@ function chooseCallbackFunction(origfn)
   }
 }
 
+function fprintf(output)
+{
+  return function () {
+    var text = format.apply(null, arguments);
+    if (text !== "")
+      output(text);
+  }
+}
+
 function Channel(name, output) {
   this.name = name;
   this.trees = {};
   this.watches = new TemporalCache();
-  this.say = function () {
-    var text = format.apply(null, arguments);
-    if (text !== "")
-      output(text);
-  };
+  this.say = fprintf(output);
   this.controller = new ChannelController(this);
 }
 

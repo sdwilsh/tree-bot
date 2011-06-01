@@ -12,8 +12,14 @@ exports.naturalJoin = function (args) {
 exports.prepend = function prepend(text)
 {
   return function (orig, cb) {
-    // Lower the first letter of the original text
-    var lowered = orig.slice(0, 1).toLowerCase() + orig.slice(1);
+    // Lower the first letter of the original text if it's not I/I'll/I'm
+    var lowered;
+    if (orig.length >= 2 && orig[0] === 'I' && (orig[1] === "'" || orig[1] === ' ')) {
+      lowered = orig;
+    }
+    else {
+      lowered = orig.slice(0, 1).toLowerCase() + orig.slice(1);
+    }
     cb(text + lowered);
   };
 }

@@ -130,6 +130,9 @@ ChannelController.prototype = {
       this.channel.watchChangeset(tree, rev, from);
       this.channel.tell(from)("I'll let you know if {0} burns {1}", rev, tree);
     } else {
+      if (who === 'me') {
+        who = from;
+      }
       this.channel.watchChangeset(tree, rev, who);
       this.channel.tell(from)("I'll let {2} know if {0} burns {1}", rev, tree, who);
     }
@@ -141,6 +144,8 @@ ChannelController.prototype = {
       name = email;
       email = tmp;
     }
+    if (name === 'me' || name === 'I')
+      name = from;
     committers.add(email, name);
     this.channel.tell(from)("thank you!");
   },
@@ -157,6 +162,7 @@ ChannelController.prototype = {
     tryCommand(/^watch ([A-Za-z-]+)$/, this.watch);
     tryCommand(/^unwatch (.+)$/, this.unwatch);
     tryCommand(/^(.+) is (.+)$/, this.identify);
+    tryCommand(/^(.+) am (.+)$/, this.identify);
     tryCommand(/^watch ([A-Fa-f0-9]+) on ([A-Za-z-]+)(?: for (.+))?/, this.watchTree);
   }
 };

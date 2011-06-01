@@ -70,7 +70,7 @@ Channel.prototype = {
       return;
     var status = tree.reportStatus.get(event.rev);
     if (status === undefined || event.result > status) {
-      // Remember status for 4 hours
+      // Remember status for 12 hours
       tree.reportStatus.add(event.rev, event.result, 12);
       reporter(cb, event);
     }

@@ -141,13 +141,10 @@ ChannelController.prototype = {
     this.channel.tell(from)("No longer watching {0}", tree);
   },
   watchTree: function (from, rev, tree, who) {
-    if (who === undefined) {
+    if (who === undefined || who === 'me') {
       this.channel.watchChangeset(tree, rev, from);
       this.channel.tell(from)("I'll let you know if {0} burns {1}", rev, tree);
     } else {
-      if (who === 'me') {
-        who = from;
-      }
       this.channel.watchChangeset(tree, rev, who);
       this.channel.tell(from)("I'll let {2} know if {0} burns {1}", rev, tree, who);
     }

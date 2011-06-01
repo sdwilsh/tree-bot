@@ -163,7 +163,7 @@ ChannelController.prototype = {
     tryCommand(/^unwatch (.+)$/, this.unwatch);
     tryCommand(/^(.+) is (.+)$/, this.identify);
     tryCommand(/^(.+) am (.+)$/, this.identify);
-    tryCommand(/^watch ([A-Fa-f0-9]+) on ([A-Za-z-]+)(?: for (.+))?/, this.watchTree);
+    tryCommand(/^watch ([A-Fa-f0-9]{12}) on ([A-Za-z-]+)(?: for (.+))?/, this.watchTree);
   }
 };
 

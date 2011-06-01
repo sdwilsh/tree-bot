@@ -40,9 +40,9 @@ exports.warning = function warning(cb, event)
     cb("{0}: I see test failures in {1} on {2} with your push of {3} to {4}", name, event.type, event.platform, event.rev, event.tree);
   }, function (name) {
     if (name === undefined) {
-      cb("Who the hell is {0} and why did they make {1} go orange?", event.pusher, event.tree);
+      cb("Who the hell is {0} and why did they make {1} turn orange?", event.pusher, event.tree);
     } else {
-      cb("Who the hell is {0} ({2}?) and why did they make {1} go orange?", event.pusher, event.tree, name);
+      cb("Who the hell is {0} ({2}?) and why did they make {1} turn orange?", event.pusher, event.tree, name);
     }
   });
 }

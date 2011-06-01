@@ -58,7 +58,7 @@ exports.failure = function failure(cb, event)
   });
   shorturl(logurl, 'goo.gl', function (shorturl) {
     committers.lookup(event.pusher, function (name) {
-      cb("{0}: Did you try compiling before pushing? There's a build failure on {1}, see {2} for details", name, event.platform, shorturl);
+      cb("{0}: Did you try compiling before pushing to {3}? There's a build failure on {1}, see {2} for details", name, event.platform, shorturl, event.tree);
     }, function (name) {
       if (name === undefined) {
         cb("Who the hell is {0} and why did they break {1}? See {2} for details.", event.pusher, event.tree, shorturl);

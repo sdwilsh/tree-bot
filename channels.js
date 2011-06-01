@@ -93,8 +93,7 @@ Channel.prototype = {
   },
   watchChangeset: function (treeName, rev, who) {
     var key = treeName+rev+who;
-    // TODO: make this a pm
-    var cb = this.tell(who);
+    var cb = this.pm(who);
     var watcher = new builds.Watcher(treeName);
     // Do individual success reports matter?
     //watcher.on("success", reporter.success.bind(reporter, cb));

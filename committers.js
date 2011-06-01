@@ -8,7 +8,7 @@ exports.lookup = function lookup(email, certain, guess)
   if (committers.hasOwnProperty(email)) {
     return certain(committers[email]);
   }
-  var guessMatch = /(.+)@(.+)/.exec(email);
+  var guessMatch = /([A-Za-z0-9]+)@(.+)/.exec(email);
   if (guessMatch) {
     return guess(guessMatch[1]);
   }

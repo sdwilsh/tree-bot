@@ -53,7 +53,7 @@ Channel.prototype = {
     if (this.trees.hasOwnProperty(name))
       return;
     var tree = this.trees[name] = {
-      watcher: new builds.Watcher(tree),
+      watcher: new builds.Watcher(name),
       success: this._treeStatusCallback.bind(this, name, 'success', reporter.success),
       warning: this._treeStatusCallback.bind(this, name, 'warning', reporter.warning),
       failure: this._treeStatusCallback.bind(this, name, 'failure', reporter.failure),

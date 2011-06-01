@@ -45,11 +45,22 @@ function fprintf(output)
   }
 }
 
-function Channel(name, output) {
+function Channel(name, backend) {
   this.name = name;
   this.trees = {};
   this.watches = new TemporalCache();
-  this.say = fprintf(output);
+  if (typeof backend ==='function') {
+    backend = {
+      say: backend,
+      pm: backend
+    };
+  }
+  this.backend = backend;
+  this.say = fprintf(backend.say);
+  this.pm = function (who) {
+    var output = backend.pm.bind(backend, who);
+    return fprintf(output);
+  };
   this.controller = new ChannelController(this);
 }
 

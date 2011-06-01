@@ -33,7 +33,11 @@ client.on("invite", function (channel, from) {
   if (kAuthorizedUsers.indexOf(from) !== -1) {
     // TODO: solve race condition here
     client.join(channel, function () {
-      channels.add(channel, client.say.bind(client, channel));
+      var backend = {
+        say: client.say.bind(client, channel),
+        pm: client.say.bind(client),
+      };
+      channels.add(channel, backend);
     });
   }
 });

@@ -21,6 +21,13 @@ function interceptFormat(interceptor, originalfn)
   };
 }
 
+function filterEventsByRev(rev, cb) {
+  return function (event) {
+    if (event.rev === rev)
+      cb(event);
+  }
+}
+
 var interceptors = [
   { 'chance' : 0.01, 'fn' : welshify },
   { 'chance' : 0.10, 'fn' : mehdify },
@@ -97,8 +104,8 @@ Channel.prototype = {
     var watcher = new builds.Watcher(treeName);
     // Do individual success reports matter?
     //watcher.on("success", reporter.success.bind(reporter, cb));
-    watcher.on("warning", reporter.warning.bind(reporter, cb));
-    watcher.on("failure", reporter.failure.bind(reporter, cb));
+    watcher.on("warning", filterEventsByRev(rev, reporter.warning.bind(reporter, cb)));
+    watcher.on("failure", filterEventsByRev(rev, reporter.failure.bind(reporter, cb)));
     // Watch for 12 hours - then no more
     this.watches.add(key, watcher, 12);
   },

@@ -168,6 +168,9 @@ ChannelController.prototype = {
     committers.add(email, name);
     this.channel.tell(from)("thank you!");
   },
+  help: function (from) {
+    this.channel.tell(from)("See https://github.com/sdwilsh/tree-bot/blob/master/README for a list of commands");
+  },
   handleCommand: function (from, text) {
     var self = this;
     function tryCommand(matcher, cb) {
@@ -183,6 +186,7 @@ ChannelController.prototype = {
     tryCommand(/^(.+) is (.+)$/, this.identify);
     tryCommand(/^(.+) am (.+)$/, this.identify);
     tryCommand(/^watch ([A-Fa-f0-9]{12}) on ([A-Za-z-]+)(?: for (.+))?/, this.watchTree);
+    tryCommand(/^h[ae]lp/, this.help);
   }
 };
 

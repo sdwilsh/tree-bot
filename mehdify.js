@@ -30,7 +30,7 @@ module.exports = function (status, callback) {
   }
   // try and determine if the tweet asks a question
   else if (/\?.{0,4}$/.test(status)) {
-    prepend('u' + 'hhhhhh'.substring(randint(0,5)) + ' ')(status, callback);
+    textutils.prepend('u' + 'hhhhhh'.substring(randint(0,5)) + ' ')(status, callback);
   }
   // prepend "aww yeah" or "whoa" to some tweets
   else if (Math.random() > 0.5) {

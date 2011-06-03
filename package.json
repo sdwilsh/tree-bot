@@ -1,0 +1,10 @@
+{
+  "name": "tree-bot",
+  "version": "0.1.0",
+  "dependencies": {
+    "irc": ">=0.2.0",
+    "shorturl": ">=0.0.2",
+    "pulse": ">=0.2.0",
+    "translate": ">=0.7.0"
+  }
+}

@@ -32,12 +32,16 @@ var successes = [
 
 exports.success = function success(cb, event)
 {
+  if (event.ignored)
+    return;
   var text = randompicker(successes, 'text');
   cb(text);
 }
 
 exports.warning = function warning(cb, event)
 {
+  if (event.ignored)
+    return;
   shorturl(event.logfile, kUrlService, function (logfile) {
     committers.lookup(event.pusher, function (name) {
       cb("{0}: I see test failures in {1} on {2} with your push of {3} to {4}. Details: {5}", name, event.type, event.platform, event.rev, event.tree, logfile);
@@ -53,6 +57,8 @@ exports.warning = function warning(cb, event)
 
 exports.failure = function failure(cb, event)
 {
+  if (event.ignored)
+    return;
   shorturl(event.logfile, kUrlService, function (logfile) {
     committers.lookup(event.pusher, function (name) {
       cb("{0}: Did you try compiling before pushing to {3}? There's a build failure on {1}, see {2} for details", name, event.platform, logfile, event.tree);

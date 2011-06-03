@@ -3,6 +3,8 @@ var shorturl = require("shorturl");
 var randompicker = require('./randompicker');
 var committers = require('./committers');
 
+var kUrlService = 'goo.gl';
+
 var greetings = [
   { chance: 0.1, text: "o hai" },
   { chance: 0.1, text: "The permasheriff is, uh...back" },
@@ -36,34 +38,29 @@ exports.success = function success(cb, event)
 
 exports.warning = function warning(cb, event)
 {
-  committers.lookup(event.pusher, function (name) {
-    cb("{0}: I see test failures in {1} on {2} with your push of {3} to {4}", name, event.type, event.platform, event.rev, event.tree);
-  }, function (name) {
-    if (name === undefined) {
-      cb("Who the hell is {0} and why did they make {1} turn orange?", event.pusher, event.tree);
-    } else {
-      cb("Who the hell is {0} ({2}?) and why did they make {1} turn orange?", event.pusher, event.tree, name);
-    }
+  shorturl(event.logfile, kUrlService, function (logfile) {
+    committers.lookup(event.pusher, function (name) {
+      cb("{0}: I see test failures in {1} on {2} with your push of {3} to {4}. Details: {5}", name, event.type, event.platform, event.rev, event.tree, logfile);
+    }, function (name) {
+      if (name === undefined) {
+        cb("Who the hell is {0} and why did they make {1} turn orange? {2}", event.pusher, event.tree, logfile);
+      } else {
+        cb("Who the hell is {0} ({2}?) and why did they make {1} turn orange? {3}", event.pusher, event.tree, name, logfile);
+      }
+    });
   });
 }
 
 exports.failure = function failure(cb, event)
 {
-  var logurl = url.format({
-    protocol: 'http',
-    host: 'tbpl.mozilla.org',
-    pathname: '/php/getTinderboxSummary.php',
-    // TODO: make this not hardcoded
-    query: {tree:'Firefox',id:event.logfile}
-  });
-  shorturl(logurl, 'goo.gl', function (shorturl) {
+  shorturl(event.logfile, kUrlService, function (logfile) {
     committers.lookup(event.pusher, function (name) {
-      cb("{0}: Did you try compiling before pushing to {3}? There's a build failure on {1}, see {2} for details", name, event.platform, shorturl, event.tree);
+      cb("{0}: Did you try compiling before pushing to {3}? There's a build failure on {1}, see {2} for details", name, event.platform, logfile, event.tree);
     }, function (name) {
       if (name === undefined) {
-        cb("Who the hell is {0} and why did they break {1}? See {2} for details.", event.pusher, event.tree, shorturl);
+        cb("Who the hell is {0} and why did they break {1}? See {2} for details.", event.pusher, event.tree, logfile);
       } else {
-        cb("Who the hell is {0} ({2}?) and why did they break {1}? See {3} for details", event.pusher, event.tree, name, shorturl);
+        cb("Who the hell is {0} ({2}?) and why did they break {1}? See {3} for details", event.pusher, event.tree, name, logfile);
       }
     });
   });

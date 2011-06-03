@@ -127,7 +127,6 @@ function getPusher(tree, cset, callback)
 
 function getLogPath(tree, cset, slave, callback)
 {
-  console.info("Looking for " + cset + " on " + slave);
   var tbox = getTinderboxFromTree(tree);
 
   // Get the JSON because Pulse knows nothing about where the logs are :(
@@ -169,7 +168,6 @@ function getLogPath(tree, cset, slave, callback)
         return;
       }
     }
-    console.error("no dice, so trying again for " + cset);
 
     // We didn't find it.  Reschedule ourselves to look again...
     setTimeout(getLogPath, kTboxDelay, tree, cset, slave, callback);

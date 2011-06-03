@@ -157,8 +157,11 @@ function getLogPath(tree, cset, slave, callback)
 
       var scrape = builds[i].scrape;
       if (scrape[0].indexOf(slave) != -1 && scrape[1].indexOf(cset) != -1) {
+        // Format is http://tinderbox.mozilla.org/showlog.cgi?log={tree}/{file}
+        var url = "http://tinderbox.mozilla.org/showlog.cgi?log=" + tbox + "/" +
+          builds[i].logfile;
         try {
-          callback(builds[i].logfile);
+          callback(url);
         }
         catch (e) {
           console.error(e.stack);

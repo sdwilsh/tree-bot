@@ -119,7 +119,7 @@ exports.events = testCase({
       test.equal(build.result, builds.Watcher.kBuildbotWarning);
       test.equal(build.tree, "try");
       test.equal(build.pusher, "ibukanov@mozilla.com");
-      test.equal(build.logfile, "1306719139.1306723720.10280.gz");
+      test.equal(build.logfile, "http://tinderbox.mozilla.org/showlog.cgi?log=Try/1306719139.1306723720.10280.gz");
       test.done();
     });
     var response = JSON.parse(fs.readFileSync("mochitest-plain-4.warning.json",

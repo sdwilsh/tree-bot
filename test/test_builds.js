@@ -43,10 +43,8 @@ exports.events = testCase({
     // These tests will end up calling http.get to get data from some other
     // service.  The test is responsible for establishing what is supposed to
     // be returned, but we'll mock out get for them so they don't have to.
-    this._originalGet = http.get;
-
     this.hosts = {};
-    http.get = function(options, callback) {
+    this.getStub = sinon.stub(http, "get", function(options, callback) {
       console.log(options.host + options.path);
       assert.ok(options.host in this.hosts);
       var paths = this.hosts[options.host];
@@ -61,7 +59,7 @@ exports.events = testCase({
       res.emit("data", paths[options.path]);
       res.emit("end");
       return new events.EventEmitter();
-    }.bind(this);
+    }.bind(this));
 
     // There's no need to delay in loading tinderbox data for tests.
     this._originalTboxDelay = builds.Watcher.kTboxDelay;
@@ -71,7 +69,7 @@ exports.events = testCase({
   },
   tearDown: function(callback)
   {
-    http.get = this.originalGet;
+    this.getStub.restore();
     builds.Watcher.kTboxDelay = this._originalTboxDelay;
     this.createConsumerStub.restore();
     callback();

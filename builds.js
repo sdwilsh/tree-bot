@@ -138,7 +138,7 @@ function getLogPath(tree, cset, slave, callback)
         errorparser: 'unittest',
         ignored: 0,
         scrape_enabled: 1,
-        scrape: 
+        scrape:
           [" s: talos-r3-fed64-039",
            "<a href=http://hg.mozilla.org/mozilla-central/rev/c6d349c58bd7 title=\"Built from revision c6d349c58bd7\">rev:c6d349c58bd7</a>",
            " crashtest<br/>1840/0/10"],

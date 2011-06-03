@@ -101,7 +101,7 @@ exports.events = testCase({
   },
 
   test_warning_event: function(test) {
-    test.expect(9);
+    test.expect(10);
     this.hosts["hg.mozilla.org"] = {
       "/try/json-pushes?changeset=fc3192320c5f":
         fs.readFileSync("json-pushes.fc3192320c5f.json", "utf8"),
@@ -119,6 +119,7 @@ exports.events = testCase({
       test.equal(build.result, builds.Watcher.kBuildbotWarning);
       test.equal(build.tree, "try");
       test.equal(build.pusher, "ibukanov@mozilla.com");
+      test.equal(build.ignored, false);
       test.equal(build.logfile, "http://tinderbox.mozilla.org/showlog.cgi?log=Try/1306719139.1306723720.10280.gz");
       test.done();
     });

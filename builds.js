@@ -125,7 +125,7 @@ function getPusher(tree, cset, callback)
   });
 }
 
-function getLogPath(tree, cset, slave, callback)
+function getTinderboxData(tree, cset, slave, callback)
 {
   var tbox = getTinderboxFromTree(tree);
 
@@ -160,7 +160,7 @@ function getLogPath(tree, cset, slave, callback)
         var url = "http://tinderbox.mozilla.org/showlog.cgi?log=" + tbox + "/" +
           builds[i].logfile;
         try {
-          callback(url);
+          callback(!!builds[i].ignored, url);
         }
         catch (e) {
           console.error(e.stack);
@@ -170,7 +170,7 @@ function getLogPath(tree, cset, slave, callback)
     }
 
     // We didn't find it.  Reschedule ourselves to look again...
-    setTimeout(getLogPath, kTboxDelay, tree, cset, slave, callback);
+    setTimeout(getTinderboxData, kTboxDelay, tree, cset, slave, callback);
   });
 }
 
@@ -192,13 +192,14 @@ function messageConsumer(message)
     // first.
     if ((data.result == kBuildbotWarning && this.listeners("warning").length) ||
         (data.result == kBuildbotFailure && this.listeners("failure").length)) {
-      var handleLog = function(log) {
+      var handleLog = function(ignored, log) {
+        data.ignored = ignored;
         data.logfile = log;
         this.emit(getEventFromType(data.result), data);
       }.bind(this);
 
       // Give tinderbox time to process the log file.
-      setTimeout(getLogPath, kTboxDelay, this.tree, data.rev, data.slave,
+      setTimeout(getTinderboxData, kTboxDelay, this.tree, data.rev, data.slave,
                  handleLog);
     }
     // On success we can notify immediately.

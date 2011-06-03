@@ -1,31 +1,27 @@
 var builds = require("../builds.js");
 var pulse = require("pulse");
 var testCase = require("nodeunit").testCase;
+var sinon = require("sinon");
 var http = require("http");
 var assert = require("assert");
 var fs = require("fs");
 var events = require("events");
-
-// Before we do anything, we need to modify BuildConsumer so that it does not
-// actually try to connect to pulse.
-var gBuildConsumer = undefined;
-function MockBuildConsumer()
-{
-  gBuildConsumer = this;
-}
-MockBuildConsumer.prototype = Object.create(pulse.BuildConsumer.prototype);
-pulse.BuildConsumer = MockBuildConsumer;
 
 ////////////////////////////////////////////////////////////////////////////////
 //// Test Functions
 
 exports.test_no_work_until_listener = function(test) {
   test.expect(2);
+
+  var stub = sinon.stub(pulse, "createConsumer");
+  stub.returns(new events.EventEmitter());
+
   var w = new builds.Watcher();
-  test.strictEqual(gBuildConsumer, undefined);
+  test.equal(stub.callCount, 0);
 
   w.on("success", function() {});
-  test.ok(gBuildConsumer);
+  test.ok(stub.calledOnce);
+  stub.restore();
   test.done();
 };
 
@@ -40,6 +36,10 @@ exports.test_Watcher_prototype = function(test) {
 exports.events = testCase({
   setUp: function(callback)
   {
+    this.createConsumerStub = sinon.stub(pulse, "createConsumer");
+    this.consumer = new events.EventEmitter();
+    this.createConsumerStub.returns(this.consumer);
+
     // These tests will end up calling http.get to get data from some other
     // service.  The test is responsible for establishing what is supposed to
     // be returned, but we'll mock out get for them so they don't have to.
@@ -73,7 +73,7 @@ exports.events = testCase({
   {
     http.get = this.originalGet;
     builds.Watcher.kTboxDelay = this._originalTboxDelay;
-    gBuildConsumer = undefined;
+    this.createConsumerStub.restore();
     callback();
   },
 
@@ -97,7 +97,7 @@ exports.events = testCase({
     });
     var response = JSON.parse(fs.readFileSync("mochitest-plain-2.success.json",
                                               "utf8"));
-    gBuildConsumer.emit("message", response);
+    this.consumer.emit("message", response);
   },
 
   test_warning_event: function(test) {
@@ -125,6 +125,6 @@ exports.events = testCase({
     });
     var response = JSON.parse(fs.readFileSync("mochitest-plain-4.warning.json",
                                               "utf8"));
-    gBuildConsumer.emit("message", response);
+    this.consumer.emit("message", response);
   },
 });

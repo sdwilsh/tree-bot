@@ -4,7 +4,7 @@
   "dependencies": {
     "irc": ">=0.2.0",
     "shorturl": ">=0.0.2",
-    "pulse": "~0.2.0",
+    "pulse": "~0.3.0",
     "translate": ">=0.7.0"
   }
 }

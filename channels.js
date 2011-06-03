@@ -109,6 +109,11 @@ Channel.prototype = {
     // Watch for 12 hours - then no more
     this.watches.add(key, watcher, 12);
   },
+  unwatchChangeset: function (treeName, rev, who) {
+    var key = treeName+rev+who;
+    if (this.watches.has(key))
+      this.watches.remove(key);
+  },
   unwatch: function (name) {
     if (!this.trees.hasOwnProperty(name))
       return;
@@ -156,6 +161,15 @@ ChannelController.prototype = {
       this.channel.tell(from)("I'll let {2} know if {0} burns {1}", rev, tree, who);
     }
   },
+  unwatchTree: function (from, rev, tree, who) {
+    if (who === undefined || who === 'me') {
+      this.channel.unwatchChangeset(tree, rev, from);
+      this.channel.tell(from)("No longer watching if {0} burns {1}", rev, tree);
+    } else {
+      this.channel.unwatchChangeset(tree, rev, who);
+      this.channel.tell(from)("I'll stop letting {2} know if {0} burns {1}", rev, tree, who);
+    }
+  },
   identify: function (from, email, name) {
     // Identity is reflexive, canonicalize order if necessary
     if (/(.+)@(.+)/.test(name)) {
@@ -182,10 +196,11 @@ ChannelController.prototype = {
       return match != null;
     }
     tryCommand(/^watch ([A-Za-z-]+)$/, this.watch);
-    tryCommand(/^unwatch (.+)$/, this.unwatch);
+    tryCommand(/^unwatch ([A-Za-z-]+)$/, this.unwatch);
     tryCommand(/^(.+) is (.+)$/, this.identify);
     tryCommand(/^(.+) am (.+)$/, this.identify);
     tryCommand(/^watch ([A-Fa-f0-9]{12}) on ([A-Za-z-]+)(?: for (.+))?/, this.watchTree);
+    tryCommand(/^unwatch ([A-Fa-f0-9]{12}) on ([A-Za-z-]+)(?: for (.+))?/, this.unwatchTree);
     tryCommand(/^h[ae]lp/, this.help);
   }
 };

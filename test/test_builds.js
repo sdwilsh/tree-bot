@@ -16,7 +16,7 @@ exports.test_no_work_until_listener = function(test) {
   var stub = sinon.stub(pulse, "createConsumer");
   stub.returns(new events.EventEmitter());
 
-  var w = new builds.Watcher();
+  var w = new builds.Watcher("try");
   test.equal(stub.callCount, 0);
 
   w.on("success", function() {});
@@ -28,8 +28,15 @@ exports.test_no_work_until_listener = function(test) {
 exports.test_Watcher_prototype = function(test) {
   test.expect(1);
   var events = require("events");
-  var w = new builds.Watcher();
+  var w = new builds.Watcher("try");
   test.ok(w instanceof events.EventEmitter);
+  test.done();
+};
+
+exports.test_Watcher_errors = function(test) {
+  test.expect(1);
+  // Not passing a tree in.
+  test.throws(function() { new builds.Watcher(); });
   test.done();
 };
 

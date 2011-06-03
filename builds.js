@@ -215,7 +215,7 @@ function messageConsumer(message)
 function Watcher(tree)
 {
   if (!tree) {
-    tree = "mozilla-central";
+    throw new Error("Must provide a tree to watch!");
   }
   this.tree = tree;
 

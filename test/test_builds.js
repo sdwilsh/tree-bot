@@ -27,7 +27,6 @@ exports.test_no_work_until_listener = function(test) {
 
 exports.test_Watcher_prototype = function(test) {
   test.expect(1);
-  var events = require("events");
   var w = new builds.Watcher("try");
   test.ok(w instanceof events.EventEmitter);
   test.done();

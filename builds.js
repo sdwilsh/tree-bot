@@ -171,11 +171,16 @@ function getTinderboxData(tree, cset, slave, callback)
         logfile: '1306534519.1306535368.11955.gz' },
     */
     for (var i = 0; i < builds.length; i++) {
-      if (!builds[i].scrape) {
+      var scrape = builds[i].scrape;
+      if (!scrape) {
         continue;
       }
+      if (!scrape[0] || !scrape[1]) {
+        // This shouldn't happen, but it sometimes does.  Log this case so we
+        // can figure out the actual error and handle it properly.
+        console.error(builds[i]);
+      }
 
-      var scrape = builds[i].scrape;
       if (scrape[0].indexOf(slave) != -1 && scrape[1].indexOf(cset) != -1) {
         // Format is http://tinderbox.mozilla.org/showlog.cgi?log={tree}/{file}
         var url = "http://tinderbox.mozilla.org/showlog.cgi?log=" + tbox + "/" +

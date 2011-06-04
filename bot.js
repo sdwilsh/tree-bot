@@ -22,7 +22,7 @@ var kAuthorizedUsers = [
 ];
 
 function isAuthorizedUser(user) {
-  return kAuthorizedUsers.indexOf(from) !== -1;
+  return kAuthorizedUsers.indexOf(user) !== -1;
 }
 
 var client = new irc.Client("irc.mozilla.org", kNick, {
@@ -47,6 +47,7 @@ client.on("invite", function (channel, from) {
       var backend = {
         say: client.say.bind(client, channel),
         pm: client.say.bind(client),
+        isAuthorizedUser: isAuthorizedUser
       };
       channels.add(channel, backend);
     });

@@ -69,7 +69,8 @@ function Channel(name, backend) {
   if (typeof backend ==='function') {
     backend = {
       say: backend,
-      pm: backend
+      pm: backend,
+      isAuthorizedUser: function (who) { return true; }
     };
   }
   this.backend = backend;
@@ -223,7 +224,8 @@ ChannelController.prototype = {
     this.channel.tell(from)(updater.version);
   },
   update: function (from) {
-    updater.update(this.channel.tell(from));
+    if (this.channel.backend.isAuthorizedUser(from))
+      updater.update(this.channel.tell(from));
   },
   handleCommand: function (from, text) {
     var self = this;

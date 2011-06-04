@@ -8,6 +8,7 @@ var committers = require("./committers");
 var textutils = require("./textutils");
 var TemporalCache = require("./temporalcache");
 var updater = require("./updater");
+var naturaltyping = require("./naturaltyping");
 
 var kIssueTrackerUrl = 'https://github.com/sdwilsh/tree-bot/issues/new';
 var treeNames = require('./jsondb')('treenames.json').db;
@@ -55,11 +56,11 @@ function chooseCallbackFunction(origfn)
 
 function fprintf(output)
 {
-  return function () {
+  return naturaltyping.type(function () {
     var text = format.apply(null, arguments);
     if (text !== "")
       output(text);
-  }
+  });
 }
 
 function Channel(name, backend) {

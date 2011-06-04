@@ -307,4 +307,13 @@ Watcher.__defineGetter__("kBuildbotFailure", function() { return kBuildbotFailur
 Watcher.__defineGetter__("kTboxDelay", function() { return kTboxDelay; });
 Watcher.__defineSetter__("kTboxDelay", function(val) { return kTboxDelay = val; });
 
+exports.__defineGetter__("trees", function() {
+  delete this.trees;
+  var trees = [];
+  for (var t in kTrees) {
+    trees.push(t);
+  }
+  return this.trees = trees;
+}.bind(exports));
+
 exports.Watcher = Watcher;

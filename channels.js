@@ -8,6 +8,7 @@ var committers = require("./committers");
 var textutils = require("./textutils");
 var TemporalCache = require("./temporalcache");
 
+var kIssueTrackerUrl = 'https://github.com/sdwilsh/tree-bot/issues/new';
 var treeNames = require('./jsondb')('treenames.json').db;
 
 function canonicalizeTreeName(name) {
@@ -156,9 +157,13 @@ function ChannelController(channel)
 ChannelController.prototype = {
   watch: function (from, tree) {
     tree = canonicalizeTreeName(tree);
-    this.channel.watch(tree);
-    var trees = textutils.naturalJoin(Object.keys(this.channel.trees));
-    this.channel.tell(from)("I'm now watching: {0}", trees);
+    try {
+      this.channel.watch(tree);
+      var trees = textutils.naturalJoin(Object.keys(this.channel.trees));
+      this.channel.tell(from)("I'm now watching: {0}", trees);
+    } catch (e) {
+      this.channel.tell(from)("I'm sorry, but I don't know anything about that tree.  If it's real, please file an issue at {0}", kIssueTrackerUrl);
+    }
   },
   unwatch: function (from, tree) {
     tree = canonicalizeTreeName(tree);
@@ -170,12 +175,16 @@ ChannelController.prototype = {
   },
   watchTree: function (from, rev, tree, who) {
     tree = canonicalizeTreeName(tree);
-    if (who === undefined || who === 'me') {
-      this.channel.watchChangeset(tree, rev, from);
-      this.channel.tell(from)("I'll let you know if {0} burns {1}", rev, tree);
-    } else {
-      this.channel.watchChangeset(tree, rev, who);
-      this.channel.tell(from)("I'll let {2} know if {0} burns {1}", rev, tree, who);
+    try {
+      if (who === undefined || who === 'me') {
+        this.channel.watchChangeset(tree, rev, from);
+        this.channel.tell(from)("I'll let you know if {0} burns {1}", rev, tree);
+      } else {
+        this.channel.watchChangeset(tree, rev, who);
+        this.channel.tell(from)("I'll let {2} know if {0} burns {1}", rev, tree, who);
+      }
+    } catch (e) {
+      this.channel.tell(from)("I'm sorry, but I don't know anything about that tree.  If it's real, please file an issue at {0}", kIssueTrackerUrl);
     }
   },
   unwatchTree: function (from, rev, tree, who) {

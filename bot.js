@@ -30,7 +30,6 @@ function isAuthorizedUser(user) {
 }
 
 var client = new irc.Client("irc.mozilla.org", kNick, {
-  debug: true,
   userName: kNick,
   realName: "Permasheriff Extraordinaire",
   channels: [],

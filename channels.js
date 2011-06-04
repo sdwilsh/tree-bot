@@ -111,8 +111,10 @@ Channel.prototype = {
   },
   unwatchChangeset: function (treeName, rev, who) {
     var key = treeName+rev+who;
-    if (this.watches.has(key))
+    var isWatching = this.watches.has(key);
+    if (isWatching)
       this.watches.remove(key);
+    return isWatching;
   },
   unwatch: function (name) {
     if (!this.trees.hasOwnProperty(name))
@@ -163,11 +165,17 @@ ChannelController.prototype = {
   },
   unwatchTree: function (from, rev, tree, who) {
     if (who === undefined || who === 'me') {
-      this.channel.unwatchChangeset(tree, rev, from);
-      this.channel.tell(from)("No longer watching if {0} burns {1}", rev, tree);
+      if (this.channel.unwatchChangeset(tree, rev, from)) {
+        this.channel.tell(from)("No longer watching if {0} burns {1}", rev, tree);
+      } else {
+        this.channel.tell(from)("I wasn't watching {0} on {1} for you", rev, tree);
+      }
     } else {
-      this.channel.unwatchChangeset(tree, rev, who);
-      this.channel.tell(from)("I'll stop letting {2} know if {0} burns {1}", rev, tree, who);
+      if (this.channel.unwatchChangeset(tree, rev, who)) {
+        this.channel.tell(from)("I'll stop letting {2} know if {0} burns {1}", rev, tree, who);
+      } else {
+        this.channel.tell(from)("I wasn't watching {0} on {1} for {2}", rev, tree, who);
+      }
     }
   },
   identify: function (from, email, name) {

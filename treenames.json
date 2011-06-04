@@ -1,0 +1,5 @@
+{
+  "m-c" : "mozilla-central",
+  "m-b" : "mozilla-beta",
+  "m-a" : "mozilla-aurora"
+}

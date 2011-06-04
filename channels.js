@@ -8,6 +8,14 @@ var committers = require("./committers");
 var textutils = require("./textutils");
 var TemporalCache = require("./temporalcache");
 
+var treeNames = require('./jsondb')('treenames.json').db;
+
+function canonicalizeTreeName(name) {
+  if (treeNames.hasOwnProperty(name))
+    return treeNames[name];
+  return name;
+}
+
 function interceptFormat(interceptor, originalfn)
 {
   return function () {
@@ -147,11 +155,13 @@ function ChannelController(channel)
 
 ChannelController.prototype = {
   watch: function (from, tree) {
+    tree = canonicalizeTreeName(tree);
     this.channel.watch(tree);
     var trees = textutils.naturalJoin(Object.keys(this.channel.trees));
     this.channel.tell(from)("I'm now watching: {0}", trees);
   },
   unwatch: function (from, tree) {
+    tree = canonicalizeTreeName(tree);
     if (this.channel.unwatch(tree)) {
       this.channel.tell(from)("I'm longer watching {0}", tree);
     } else {
@@ -159,6 +169,7 @@ ChannelController.prototype = {
     }
   },
   watchTree: function (from, rev, tree, who) {
+    tree = canonicalizeTreeName(tree);
     if (who === undefined || who === 'me') {
       this.channel.watchChangeset(tree, rev, from);
       this.channel.tell(from)("I'll let you know if {0} burns {1}", rev, tree);
@@ -168,6 +179,7 @@ ChannelController.prototype = {
     }
   },
   unwatchTree: function (from, rev, tree, who) {
+    tree = canonicalizeTreeName(tree);
     if (who === undefined || who === 'me') {
       if (this.channel.unwatchChangeset(tree, rev, from)) {
         this.channel.tell(from)("No longer watching if {0} burns {1}", rev, tree);

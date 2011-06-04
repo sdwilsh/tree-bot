@@ -6,6 +6,10 @@ var mode = 'irc';
 if (process.argv.length > 2)
   mode = process.argv[2];
 if (mode === 'console') {
+  updater.restart = function () {
+    console.log("It's less awkward if I just exit");
+    process.exit()
+  }
   // Console channel
   var consoleChannel = channels.add('<console>', console.log);
   process.stdin.resume();

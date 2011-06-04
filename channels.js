@@ -7,6 +7,7 @@ var randompicker = require("./randompicker");
 var committers = require("./committers");
 var textutils = require("./textutils");
 var TemporalCache = require("./temporalcache");
+var updater = require("./updater");
 
 var kIssueTrackerUrl = 'https://github.com/sdwilsh/tree-bot/issues/new';
 var treeNames = require('./jsondb')('treenames.json').db;
@@ -218,6 +219,12 @@ ChannelController.prototype = {
   help: function (from) {
     this.channel.tell(from)("See https://github.com/sdwilsh/tree-bot/blob/master/README for a list of commands");
   },
+  version: function (from) {
+    this.channel.tell(from)(updater.version);
+  },
+  update: function (from) {
+    updater.update(this.channel.tell(from));
+  },
   handleCommand: function (from, text) {
     var self = this;
     function tryCommand(matcher, cb) {
@@ -235,6 +242,8 @@ ChannelController.prototype = {
     tryCommand(/^watch ([A-Fa-f0-9]{12}) on ([A-Za-z-]+)(?: for (.+))?/, this.watchTree);
     tryCommand(/^unwatch ([A-Fa-f0-9]{12}) on ([A-Za-z-]+)(?: for (.+))?/, this.unwatchTree);
     tryCommand(/^h[ae]lp/, this.help);
+    tryCommand(/^version$/, this.version);
+    tryCommand(/^update/, this.update);
   }
 };
 

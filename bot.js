@@ -1,5 +1,6 @@
 var irc = require("irc");
 var channels = require("./channels");
+var updater = require("./updater");
 
 var mode = 'irc';
 if (process.argv.length > 2)
@@ -28,6 +29,12 @@ var client = new irc.Client("irc.mozilla.org", kNick, {
   secure: true,
   port: 6697
 });
+
+updater.restart = function () {
+  client.disconnect("Updating...hopefully don't need metaafrosdwilsh");
+  require("child_process").spawn('node', [__filename], { customFds: [0, 1, 2] });
+  process.exit();
+};
 
 client.on("invite", function (channel, from) {
   if (kAuthorizedUsers.indexOf(from) !== -1) {

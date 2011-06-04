@@ -88,6 +88,8 @@ function createBuildData(m)
   });
 
   if (!builddata.rev) {
+    // This shouldn't happen, but seems to!  Logging to track this down.
+    console.error("Did not find a rev!  Our key was " + builddata.key);
     console.error(m.payload.properties);
   }
 

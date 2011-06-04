@@ -17,7 +17,7 @@ Config.prototype = {
   save: function () {
     this.saveInProgress = true;
     var count = Object.keys(this.db).length;
-    fs.writeFile(this.path, JSON.stringify(this.db), 'utf8', this._saveComplete.bind(this, count));
+    fs.writeFile(this.path, JSON.stringify(this.db, null, ' '), 'utf8', this._saveComplete.bind(this, count));
     this.isDirty = false;
   },
   _saveComplete: function (count, err) {

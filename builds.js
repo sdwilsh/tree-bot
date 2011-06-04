@@ -12,8 +12,28 @@ var kBuildbotFailure = 2;
 
 // A mapping of valid tree names to their tinderbox.
 var kTrees = {
+  // Top Level Repositories
   "mozilla-central": "Firefox",
+  "tracemonkey": "TraceMonkey",
   "try": "Try",
+  // Release Repositories
+  "releases/mozilla-aurora": "Mozilla-Aurora",
+  "releases/mozilla-beta": "Mozilla-Beta",
+  // Project Repositories
+  "projects/accessibility": "Accessibility",
+  "projects/alder": "Alder",
+  "projects/birch": "Birch",
+  "projects/build-system": "Build-System",
+  "projects/cedar": "Cedar",
+  "projects/devtools": "Devtools",
+  "projects/electrolysis": "Electrolysis",
+  "projects/holly": "Holly",
+  "projects/larch": "Larch",
+  "projects/maple": "Maple",
+  "projects/places": "Places",
+  "projects/ux": "UX",
+  // Services Repositories
+  "services/services-central": "Services-Central",
 };
 
 ////////////////////////////////////////////////////////////////////////////////

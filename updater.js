@@ -15,7 +15,7 @@ exports.__defineGetter__('version', function () { return version; });
 exports.__defineGetter__('restart', function () { return restart; });
 exports.__defineSetter__('restart', function (r) { restart = r; });
 exports.update = function update(cb) {
-  exec('git pull --rebase origin master', function (error, stdout, stderr) {
+  exec('git fetch', function (error, stdout, stderr) {
     if (error !== null) {
       return cb("Had trouble fetching a new version: {0}", stderr);
     }
@@ -26,8 +26,13 @@ exports.update = function update(cb) {
       if (new_version.trim() === version) {
         return cb("Looks like I'm up to date!");
       }
-      cb("Updating to {0}. See you soon I hope!", new_version.trim());
-      restart();
+      exec('git rebase origin/master', function (error, stdout, stderr) {
+        if (error !== null) {
+          return cb("Had trouble rebasing: {0}", error);
+        }
+        cb("Updating to {0}. See you soon I hope!", new_version.trim());
+        restart();
+      });
     });
   });
 };

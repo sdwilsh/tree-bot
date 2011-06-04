@@ -84,6 +84,20 @@ exports.events = testCase({
     callback();
   },
 
+  test_error_event: function(test)
+  {
+    test.expect(2);
+    var w = new builds.Watcher("mozilla-central");
+    var spy = sinon.spy();
+    w.on("error", spy);
+
+    var kTestError = { name: "test error" };
+    this.consumer.emit("error", kTestError);
+    test.ok(spy.calledOnce);
+    test.ok(spy.calledWith(kTestError));
+    test.done();
+  },
+
   test_success_event: function(test) {
     test.expect(8);
     this.hosts["hg.mozilla.org"] = {

@@ -256,6 +256,9 @@ function Watcher(tree)
                                                 "build-watcher" + Date.now(),
                                                 topics);
     this._connection.on("message", messageConsumer.bind(this));
+    this._connection.on("error", function(error) {
+      this.emit("error", error);
+    }.bind(this));
   }.bind(this));
 }
 

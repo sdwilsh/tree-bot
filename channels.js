@@ -228,6 +228,10 @@ ChannelController.prototype = {
     if (this.channel.backend.isAuthorizedUser(from))
       updater.update(this.channel.tell(from));
   },
+  restart: function (from) {
+    if (this.channel.backend.isAuthorizedUser(from))
+      updater.restart();
+  },
   handleCommand: function (from, text) {
     var self = this;
     function tryCommand(matcher, cb) {
@@ -247,6 +251,7 @@ ChannelController.prototype = {
     tryCommand(/^h[ae]lp/, this.help);
     tryCommand(/^version$/, this.version);
     tryCommand(/^update/, this.update);
+    tryCommand(/^restart$/, this.restart);
   }
 };
 

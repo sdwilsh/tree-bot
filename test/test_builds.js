@@ -98,7 +98,8 @@ exports.events = testCase({
     test.done();
   },
 
-  test_success_event: function(test) {
+  test_success_event: function(test)
+  {
     test.expect(8);
     this.hosts["hg.mozilla.org"] = {
       "/try/json-pushes?changeset=e8cdbbadcd0a":
@@ -121,7 +122,8 @@ exports.events = testCase({
     this.consumer.emit("message", response);
   },
 
-  test_warning_event: function(test) {
+  test_warning_event: function(test)
+  {
     test.expect(10);
     this.hosts["hg.mozilla.org"] = {
       "/try/json-pushes?changeset=fc3192320c5f":

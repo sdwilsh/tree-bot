@@ -21,6 +21,10 @@ var kAuthorizedUsers = [
   'sdwilsh', 'robarnold'
 ];
 
+function isAuthorizedUser(user) {
+  return kAuthorizedUsers.indexOf(from) !== -1;
+}
+
 var client = new irc.Client("irc.mozilla.org", kNick, {
   debug: true,
   userName: kNick,
@@ -37,7 +41,7 @@ updater.restart = function () {
 };
 
 client.on("invite", function (channel, from) {
-  if (kAuthorizedUsers.indexOf(from) !== -1) {
+  if (isAuthorizedUser(from)) {
     // TODO: solve race condition here
     client.join(channel, function () {
       var backend = {

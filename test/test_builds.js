@@ -34,9 +34,11 @@ exports.test_Watcher_prototype = function(test) {
 };
 
 exports.test_Watcher_errors = function(test) {
-  test.expect(1);
+  test.expect(2);
   // Not passing a tree in.
   test.throws(function() { new builds.Watcher(); });
+  // Passing an invalid tree in.
+  test.throws(function() { new builds.Watcher("bogus tree"); });
   test.done();
 };
 

@@ -10,6 +10,12 @@ var kBuildbotSuccess = 0;
 var kBuildbotWarning = 1;
 var kBuildbotFailure = 2;
 
+// A mapping of valid tree names to their tinderbox.
+var kTrees = {
+  "mozilla-central": "Firefox",
+  "try": "Try",
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 //// Local Methods
 
@@ -27,12 +33,7 @@ function getEventFromType(type)
 
 function getTinderboxFromTree(tree)
 {
-  switch(tree) {
-    case "mozilla-central":
-      return "Firefox";
-    case "try":
-      return "Try";
-  }
+  return kTrees[tree];
 }
 
 function createBuildData(m)
@@ -216,6 +217,9 @@ function Watcher(tree)
 {
   if (!tree) {
     throw new Error("Must provide a tree to watch!");
+  }
+  if (!(tree in kTrees)) {
+    throw new Error("Must be a supported tree!");
   }
   this.tree = tree;
 

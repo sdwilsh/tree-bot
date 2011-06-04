@@ -266,6 +266,11 @@ function Watcher(tree)
       "jetpack",
       "check",
       "compile",
+      "spidermonkey-shark",
+      "spidermonkey-dtrace",
+      "spidermonkey-warnaserrdebug",
+      "spidermonkey-notracejit",
+      "spidermonkey-nomethodjit",
     ];
 
     var topics = [];

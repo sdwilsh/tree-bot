@@ -118,12 +118,13 @@ Channel.prototype = {
   },
   unwatch: function (name) {
     if (!this.trees.hasOwnProperty(name))
-      return;
+      return false;
     var tree = this.trees[name];
     tree.watcher.removeListener("success", tree.success);
     tree.watcher.removeListener("warning", tree.warning);
     tree.watcher.removeListener("failure", tree.failure);
     delete this.trees[name];
+    return true;
   },
   tell: function (person) {
     var self = this;
@@ -148,11 +149,14 @@ ChannelController.prototype = {
   watch: function (from, tree) {
     this.channel.watch(tree);
     var trees = textutils.naturalJoin(Object.keys(this.channel.trees));
-    this.channel.tell(from)("Now watching: {0}", trees);
+    this.channel.tell(from)("I'm now watching: {0}", trees);
   },
   unwatch: function (from, tree) {
-    this.channel.unwatch(tree);
-    this.channel.tell(from)("No longer watching {0}", tree);
+    if (this.channel.unwatch(tree)) {
+      this.channel.tell(from)("I'm longer watching {0}", tree);
+    } else {
+      this.channel.tell(from)("I wasn't watching {0}", tree);
+    }
   },
   watchTree: function (from, rev, tree, who) {
     if (who === undefined || who === 'me') {

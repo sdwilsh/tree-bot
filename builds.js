@@ -247,6 +247,7 @@ function messageConsumer(message)
 
 function Watcher(tree)
 {
+  events.EventEmitter.call(this);
   if (!tree) {
     throw new Error("Must provide a tree to watch!");
   }

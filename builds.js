@@ -82,6 +82,11 @@ function createBuildData(m)
         builddata.slave = property[1];
         break;
       case "revision":
+        if (!property[1]) {
+          // This shouldn't happen, but seems to!  Logging to track this down.
+          console.error("Property is null!  Our key was " + builddata.key);
+          console.error(m.payload.properties);
+        }
         builddata.rev = property[1].substr(0, 12);
         break;
     }

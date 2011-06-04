@@ -7,7 +7,7 @@ exec('git rev-parse HEAD', function (error, stdout, stderr) {
   if (error !== null) {
     console.log("Got error trying to grab current version");
   } else {
-    version = stdout;
+    version = stdout.trim();
   }
 });
 
@@ -23,10 +23,10 @@ exports.update = function update(cb) {
       if (error !== null) {
         return cb("Had trouble parsing fetched version: {0}", stderr);
       }
-      if (new_version === version) {
+      if (new_version.trim() === version) {
         return cb("Looks like I'm up to date!");
       }
-      cb("Updating to {0}. See you soon I hope!", new_version);
+      cb("Updating to {0}. See you soon I hope!", new_version.trim());
       restart();
     });
   });

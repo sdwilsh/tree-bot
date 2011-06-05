@@ -234,7 +234,8 @@ ChannelController.prototype = {
   },
   handleCommand: function (from, text) {
     var self = this;
-    function tryCommand(matcher, cb) {
+    function tryCommand(matcher, name) {
+      var cb = self[name];
       var match = matcher.exec(text);
       if (match) {
         Array.prototype.splice.call(match, 0, 1, from);
@@ -242,17 +243,23 @@ ChannelController.prototype = {
       }
       return match != null;
     }
-    tryCommand(/^watch ([A-Za-z-]+)$/, this.watch);
-    tryCommand(/^unwatch ([A-Za-z-]+)$/, this.unwatch);
-    tryCommand(/^(.+) is (.+)$/, this.identify);
-    tryCommand(/^(.+) am (.+)$/, this.identify);
-    tryCommand(/^watch ([A-Fa-f0-9]{12}) on ([A-Za-z-]+)(?: for (.+))?/, this.watchTree);
-    tryCommand(/^unwatch ([A-Fa-f0-9]{12}) on ([A-Za-z-]+)(?: for (.+))?/, this.unwatchTree);
-    tryCommand(/^h[ae]lp/, this.help);
-    tryCommand(/^version$/, this.version);
-    tryCommand(/^update/, this.update);
-    tryCommand(/^restart$/, this.restart);
-  }
+    this.commands.reduce(function (skip, cmd) {
+      if (skip) return skip;
+      return tryCommand.apply(null, cmd);
+    }, false);
+  },
+  commands: [
+    [/^watch ([A-Za-z-]+)$/, "watch"],
+    [/^unwatch ([A-Za-z-]+)$/, "unwatch"],
+    [/^(.+) is (.+)$/, "identify"],
+    [/^(.+) am (.+)$/, "identify"],
+    [/^watch ([A-Fa-f0-9]{12}) on ([A-Za-z-]+)(?: for (.+))?/, "watchTree"],
+    [/^unwatch ([A-Fa-f0-9]{12}) on ([A-Za-z-]+)(?: for (.+))?/, "unwatchTree"],
+    [/^h[ae]lp/, "help"],
+    [/^version$/, "version"],
+    [/^update/, "update"],
+    [/^restart$/, "restart"],
+  ]
 };
 
 var channels = {};

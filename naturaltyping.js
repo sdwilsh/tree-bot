@@ -11,16 +11,8 @@ function enqueueCallback(delay, cb, args) {
     args:args
   });
   if (queue.length == 1) {
-    var now = Date.now();
-    var timeToSendMessage = lastMessageSent + delay;
-    if (now >= timeToSendMessage) {
-      // It has been long enough since the last message that we could have typed
-      // this
-      runQueueHead();
-    } else {
-      // Schedule us to send the message as soon as we can.
-      timerId = setTimeout(runQueueHead, timeToSendMessage - now);
-    }
+    // There's no timer running so schedule us to send the message as soon as we can.
+    timerId = setTimeout(runQueueHead, delay);
   }
 }
 

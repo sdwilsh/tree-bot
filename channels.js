@@ -9,6 +9,7 @@ var textutils = require("./textutils");
 var TemporalCache = require("./temporalcache");
 var updater = require("./updater");
 var naturaltyping = require("./naturaltyping");
+var eliza = require("./eliza");
 
 var kIssueTrackerUrl = 'https://github.com/sdwilsh/tree-bot/issues/new';
 var treeNames = require('./jsondb')('treenames.json').db;
@@ -155,6 +156,10 @@ Channel.prototype = {
 function ChannelController(channel)
 {
   this.channel = channel;
+  // TODO: allow more than one instance per channel
+  this.eliza = new eliza.ElizaBot();
+  this.eliza.memSize = 100;
+  this.eliza.reset();
 }
 
 ChannelController.prototype = {
@@ -243,10 +248,13 @@ ChannelController.prototype = {
       }
       return match != null;
     }
-    this.commands.reduce(function (skip, cmd) {
+    var handled = this.commands.reduce(function (skip, cmd) {
       if (skip) return skip;
       return tryCommand.apply(null, cmd);
     }, false);
+    if (!handled) {
+      this.channel.tell(from)(this.eliza.transform(text));
+    }
   },
   commands: [
     [/^watch ([A-Za-z-]+)$/, "watch"],

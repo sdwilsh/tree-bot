@@ -223,7 +223,7 @@ ChannelController.prototype = {
     this.channel.tell(from)("See https://github.com/sdwilsh/tree-bot/blob/master/README for a list of commands");
   },
   version: function (from) {
-    this.channel.tell(from)(updater.version);
+    this.channel.tell(from)("I am running version {0}", updater.version);
   },
   update: function (from) {
     if (this.channel.backend.isAuthorizedUser(from))

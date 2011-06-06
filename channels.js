@@ -217,6 +217,9 @@ ChannelController.prototype = {
       var tmp = name;
       name = email;
       email = tmp;
+    } else if (!/(.+)@(.+)/.test(email)) {
+      // This is not the command they were looking for (likely eliza)
+      return false;
     }
     if (name === 'me' || name === 'I')
       name = from;
@@ -244,9 +247,12 @@ ChannelController.prototype = {
       var match = matcher.exec(text);
       if (match) {
         Array.prototype.splice.call(match, 0, 1, from);
-        cb.apply(self, match);
+        var result = cb.apply(self, match);
+        // Some commands may have more complex conditions that they check
+        if (result !== undefined)
+          return result;
       }
-      return match != null;
+      return match !== null;
     }
     var handled = this.commands.reduce(function (skip, cmd) {
       if (skip) return skip;
@@ -259,8 +265,8 @@ ChannelController.prototype = {
   commands: [
     [/^watch ([A-Za-z-]+)$/, "watch"],
     [/^unwatch ([A-Za-z-]+)$/, "unwatch"],
-    [/^(.+) is (.+)$/, "identify"],
-    [/^(.+) am (.+)$/, "identify"],
+    [/^((?:\w|@|\.|\+)+) is ((?:\w|@|\.|\+)+)$/, "identify"],
+    [/^(\w) am (.+)$/, "identify"],
     [/^watch ([A-Fa-f0-9]{12}) on ([A-Za-z-]+)(?: for (.+))?/, "watchTree"],
     [/^unwatch ([A-Fa-f0-9]{12}) on ([A-Za-z-]+)(?: for (.+))?/, "unwatchTree"],
     [/^h[ae]lp/, "help"],

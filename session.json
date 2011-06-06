@@ -1,0 +1,12 @@
+{
+ "channels": {
+  "<console>": {
+   "state": {
+    "trees": [
+     "try",
+     "mozilla-central"
+    ]
+   }
+  }
+ }
+}

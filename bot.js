@@ -2,6 +2,8 @@ var irc = require("irc");
 var channels = require("./channels");
 var updater = require("./updater");
 
+var session = require("./sessionrestore");
+
 // Connect to IRC
 var kNick = 'afrosdwilsh';
 var kAuthorizedUsers = [
@@ -26,22 +28,42 @@ updater.restart = function () {
   process.exit();
 };
 
+function makeBackend(channel)
+{
+  return {
+    say: client.say.bind(client, channel),
+    pm: client.say.bind(client),
+    isAuthorizedUser: isAuthorizedUser,
+    channelStateChanged: session.updateChannelState.bind(session, channel),
+  };
+}
+
+function joinChannel(name, cb) {
+  // Only try to join things that look like irc channels
+  // i.e. not the special console channel
+  if (/^#/.test(name)) {
+    client.join(name, function () {
+      cb(makeBackend(name));
+    });
+  }
+}
+
+client.on("registered", session.restore.bind(session, joinChannel));
+
 client.on("invite", function (channel, from) {
   if (isAuthorizedUser(from)) {
     // TODO: solve race condition here
-    client.join(channel, function () {
-      var backend = {
-        say: client.say.bind(client, channel),
-        pm: client.say.bind(client),
-        isAuthorizedUser: isAuthorizedUser
-      };
+    joinChannel(channel, function (backend) {
+      session.onNewChannel(channel);
       channels.add(channel, backend);
     });
   }
 });
+
 client.addListener("error", function(m) {
   console.error(m);
 });
+
 client.addListener("message", function(from, to, message) {
   var channel = channels.get(to);
 

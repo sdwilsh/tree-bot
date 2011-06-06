@@ -78,6 +78,21 @@ function Channel(name, backend) {
 }
 
 Channel.prototype = {
+  configDidChange: function () {
+    if (this.restoring)
+      return;
+    // TODO: include changeset watches
+    var state = {
+      trees: Object.keys(this.trees)
+    };
+    this.backend.channelStateChanged(state);
+  },
+  restoring: false,
+  restoreState: function (state) {
+    this.restoring = true;
+    state.trees.forEach(this.watch.bind(this));
+    this.restoring = false;
+  },
   watch: function (name) {
     if (this.trees.hasOwnProperty(name))
       return;
@@ -91,6 +106,7 @@ Channel.prototype = {
     tree.watcher.on("success", tree.success);
     tree.watcher.on("warning", tree.warning);
     tree.watcher.on("failure", tree.failure);
+    this.configDidChange();
   },
   _treeStatusCallback: function (name, type, reporter, event) {
     var cb = chooseCallbackFunction(this.say);
@@ -114,12 +130,15 @@ Channel.prototype = {
     watcher.on("failure", filterEventsByRev(rev, reporter.failure.bind(reporter, cb)));
     // Watch for 12 hours - then no more
     this.watches.add(key, watcher, 12);
+    this.configDidChange();
   },
   unwatchChangeset: function (treeName, rev, who) {
     var key = treeName+rev+who;
     var isWatching = this.watches.has(key);
-    if (isWatching)
+    if (isWatching) {
       this.watches.remove(key);
+      this.configDidChange();
+    }
     return isWatching;
   },
   unwatch: function (name) {
@@ -130,6 +149,7 @@ Channel.prototype = {
     tree.watcher.removeListener("warning", tree.warning);
     tree.watcher.removeListener("failure", tree.failure);
     delete this.trees[name];
+    this.configDidChange();
     return true;
   },
   tell: function (person) {

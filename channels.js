@@ -68,13 +68,6 @@ function Channel(name, backend) {
   this.name = name;
   this.trees = {};
   this.watches = new TemporalCache();
-  if (typeof backend ==='function') {
-    backend = {
-      say: backend,
-      pm: backend,
-      isAuthorizedUser: function (who) { return true; }
-    };
-  }
   this.backend = backend;
   this.say = fprintf(backend.say);
   this.pm = function (who) {

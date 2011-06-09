@@ -14,6 +14,7 @@ var kBuildbotFailure = 2;
 var kTrees = {
   // Top Level Repositories
   "mozilla-central": "Firefox",
+  "mozilla-inbound": "Mozilla-Inbound",
   "tracemonkey": "TraceMonkey",
   "try": "Try",
   // Release Repositories

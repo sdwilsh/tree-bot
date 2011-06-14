@@ -17,7 +17,11 @@ exports.restore = function (createbackend) {
   var backend;
   for (name in session.db.channels) {
     createbackend(name, function (backend) {
-      channels.add(name, backend).restoreState(session.db.channels[name].state);
+      var state = session.db.channels[name].state;
+      var channel = channels.add(name, backend);
+      if (state !== undefined) {
+        channel.restoreState(state);
+      }
     });
   }
 };

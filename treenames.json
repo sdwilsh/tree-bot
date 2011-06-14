@@ -2,5 +2,6 @@
   "m-c" : "mozilla-central",
   "m-b" : "mozilla-beta",
   "m-a" : "mozilla-aurora",
-  "t-m" : "tracemonkey"
+  "t-m" : "tracemonkey",
+  "gavin"  : "stand-up guy"
 }

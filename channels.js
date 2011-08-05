@@ -14,6 +14,9 @@ var eliza = require("./eliza");
 var kIssueTrackerUrl = 'https://github.com/sdwilsh/tree-bot/issues/new';
 var treeNames = require('./jsondb')('treenames.json').db;
 
+var kSession = "session.json";
+var sessioninfo = require("./jsondb")(kSession);
+
 function canonicalizeTreeName(name) {
   if (treeNames.hasOwnProperty(name))
     return treeNames[name];
@@ -129,7 +132,7 @@ Channel.prototype = {
     watcher.on("warning", filterEventsByRev(rev, reporter.warning.bind(reporter, cb)));
     watcher.on("failure", filterEventsByRev(rev, reporter.failure.bind(reporter, cb)));
     // Watch for 12 hours - then no more
-    this.watches.add(key, watcher, 12);
+    this.watches.add(key, watcher, 12, treeName, rev, who);
     this.configDidChange();
   },
   unwatchChangeset: function (treeName, rev, who) {
@@ -253,6 +256,23 @@ ChannelController.prototype = {
     if (this.channel.backend.isAuthorizedUser(from))
       updater.restart();
   },
+  currently: function(from){
+    var trees = textutils.naturalJoin(Object.keys(this.channel.trees));
+    this.channel.tell(from)("I'm currently watching: {0}", trees);
+
+    this.channel.tell(from)("Listing user-specific watches:");
+    var watches = this.channel.watches.show();
+    var count = 0;
+    for (var x in watches){
+      this.channel.tell(from)("* Watching revision {0} for {1} on {2}",watches[x].rev,watches[x].name,watches[x].tree);
+      count++;
+    }
+    if(count == 0){
+      this.channel.tell(from)("Not watching any user-specific watches!");
+    }else{
+      this.channel.tell(from)("...and that's all I'm watching right now.");
+    }
+  },
   handleCommand: function (from, text) {
     var self = this;
     function tryCommand(matcher, name) {
@@ -286,6 +306,8 @@ ChannelController.prototype = {
     [/^version$/, "version"],
     [/^update/, "update"],
     [/^restart$/, "restart"],
+    [/^currently$/, "currently"],
+    [/^list$/, "currently"],
   ]
 };
 

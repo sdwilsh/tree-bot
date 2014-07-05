@@ -7,7 +7,7 @@ var session = require("./sessionrestore");
 // Connect to IRC
 var kNick = 'afrosdwilsh';
 var kAuthorizedUsers = [
-  'sdwilsh', 'robarnold'
+  'sdwilsh', 'robarnold', 'samliu'
 ];
 
 function isAuthorizedUser(user) {

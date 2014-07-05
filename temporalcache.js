@@ -6,6 +6,7 @@ var kMSPerCacheUnit = 1000 * 60 * 60;
 function Cache()
 {
   this.cache = {};
+  this.info = {};
 }
 
 Cache.prototype = {
@@ -22,12 +23,17 @@ Cache.prototype = {
     assert.ok(this.has(name));
     return this.cache[name];
   },
-  add: function (name, value, time) {
+  add: function (name, value, time, treeName, rev, who) {
     if (this.has(name))
       this.remove(name);
     this.cache[name] = {
       value: value,
       timer: setTimeout(this.remove.bind(this, name), kMSPerCacheUnit * time)
+    };
+    this.info[name]={
+      rev: rev,
+      name: who,
+      tree: treeName
     };
   },
   remove: function (name) {
@@ -36,7 +42,15 @@ Cache.prototype = {
     if (entry.timer)
       clearTimeout(entry.timer);
     delete this.cache[name];
+    delete this.info[name];
     return entry.value;
+  },
+  show: function(){
+    //for(var x in this.cache){
+    //  console.log(x);
+    //  console.log(this.info[x])
+    //}
+    return this.info;
   },
 };
 
